@@ -2019,7 +2019,9 @@ const MobileBottomNav = () => {
 };
 
 const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('admin_authenticated') === 'true');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -2047,8 +2049,17 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   const [activeTab, setActiveTab] = useState<'overview' | 'patients' | 'agendamento'>('overview');
 
   const fetchPatients = async () => {
-    const { data, error } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
-    if (data) setPatients(data);
+    setIsRefreshing(true);
+    try {
+      const { data, error } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
+      if (data) {
+        setPatients(data);
+        setLastUpdated(new Date());
+      }
+    } finally {
+      // Pequeno delay para feedback visual do botão girando
+      setTimeout(() => setIsRefreshing(false), 500);
+    }
   };
 
   useEffect(() => {
@@ -2094,11 +2105,20 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     e.preventDefault();
     if (email === "gabrielrocha.psicologia@gmail.com" && password === "iniciaragendamento123") {
       setIsAuthenticated(true);
+      localStorage.setItem('admin_authenticated', 'true');
       setError("");
     } else {
       setError("Acesso negado. Credenciais administrativas inválidas.");
     }
   };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('admin_authenticated');
+    localStorage.removeItem('admin_portal_open');
+    onClose();
+  };
+
 
   const deletePatient = async (id: number) => {
     if(confirm("Deseja realmente excluir este paciente?")) {
@@ -2205,7 +2225,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
           <div className="mt-auto px-4 w-full">
             <button 
-              onClick={onClose}
+              onClick={handleLogout}
               className="w-full flex flex-col md:flex-row items-center gap-4 px-4 py-4 rounded-2xl text-white/20 hover:text-red-500 hover:bg-red-500/5 transition-all"
             >
               <ZapOff className="w-5 h-5" />
@@ -2235,13 +2255,27 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
             <div className="flex items-center gap-8">
                {isAuthenticated && (
-                 <div className="hidden md:flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-[10px] text-white/40 font-black uppercase tracking-widest leading-none mb-1">Status</p>
-                      <p className="text-[11px] text-green-500 font-black uppercase tracking-widest">Servidor Online</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                 <div className="hidden md:flex items-center gap-6">
+                    <button 
+                      onClick={() => fetchPatients()}
+                      disabled={isRefreshing}
+                      className={`flex items-center gap-3 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <RotateCcw className={`w-3.5 h-3.5 text-imposing-gold transition-transform duration-500 ${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180'}`} />
+                      <div className="text-left">
+                        <p className="text-[8px] text-white/40 font-black uppercase tracking-widest leading-none mb-0.5">Atualizar</p>
+                        <p className="text-[9px] text-white/80 font-black uppercase tracking-widest">Sincronizar</p>
+                      </div>
+                    </button>
+
+                    <div className="flex items-center gap-4 border-l border-white/5 pl-6">
+                       <div className="text-right">
+                         <p className="text-[10px] text-white/40 font-black uppercase tracking-widest leading-none mb-1">Status</p>
+                         <p className="text-[11px] text-green-500 font-black uppercase tracking-widest">Servidor Online</p>
+                       </div>
+                       <div className="w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                       </div>
                     </div>
                  </div>
                )}
@@ -2951,7 +2985,11 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 };
 
 const App = () => {
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(() => localStorage.getItem('admin_portal_open') === 'true');
+
+  useEffect(() => {
+    localStorage.setItem('admin_portal_open', isAdminOpen.toString());
+  }, [isAdminOpen]);
 
   useEffect(() => {
     // Force scroll to top on mount/reload
