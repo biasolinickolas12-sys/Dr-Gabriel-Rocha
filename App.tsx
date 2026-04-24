@@ -2019,12 +2019,31 @@ const MobileBottomNav = () => {
 };
 
 const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('admin_authenticated') === 'true');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Check existing Supabase Auth session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      setIsCheckingAuth(false);
+    };
+    checkSession();
+
+    // Listen for auth state changes (login/logout/token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewingDetails, setViewingDetails] = useState<{title: string, content: string} | null>(null);
   
@@ -2101,20 +2120,28 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     setActiveTab('agendamento');
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "gabrielrocha.psicologia@gmail.com" && password === "iniciaragendamento123") {
-      setIsAuthenticated(true);
-      localStorage.setItem('admin_authenticated', 'true');
-      setError("");
-    } else {
-      setError("Acesso negado. Credenciais administrativas inválidas.");
+    setIsLoggingIn(true);
+    setError("");
+    try {
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (authError) {
+        setError("Acesso negado. Credenciais administrativas inválidas.");
+      }
+    } catch (err) {
+      setError("Erro de conexão. Tente novamente.");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
-    localStorage.removeItem('admin_authenticated');
     localStorage.removeItem('admin_portal_open');
     onClose();
   };
@@ -2288,7 +2315,14 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
         </header>
 
         <div className="p-8 md:p-12">
-          {!isAuthenticated ? (
+          {isCheckingAuth ? (
+            <div className="flex items-center justify-center mt-40">
+              <div className="flex flex-col items-center gap-6">
+                <RotateCcw className="w-8 h-8 text-imposing-gold animate-spin" />
+                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Verificando sessão...</p>
+              </div>
+            </div>
+          ) : !isAuthenticated ? (
             <div className="max-w-md mx-auto mt-20">
               <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white/[0.02] border border-white/5 p-12 backdrop-blur-3xl rounded-[2.5rem] relative overflow-hidden shadow-2xl">
                  <div className="absolute top-0 left-0 w-full h-[2px] bg-imposing-gold" />
@@ -2302,13 +2336,15 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                  <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-3">
                       <label className="text-[9px] uppercase tracking-[0.3em] font-black text-imposing-gold ml-1">E-mail Administrativo</label>
-                      <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 px-6 py-5 rounded-2xl text-white text-sm focus:border-imposing-gold outline-none transition-all" placeholder="gabriel@exemplo.com" required />
+                      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 px-6 py-5 rounded-2xl text-white text-sm focus:border-imposing-gold outline-none transition-all" placeholder="gabriel@exemplo.com" required />
                     </div>
                     <div className="space-y-3">
                       <label className="text-[9px] uppercase tracking-[0.3em] font-black text-imposing-gold ml-1">Senha de Acesso</label>
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 px-6 py-5 rounded-2xl text-white text-sm focus:border-imposing-gold outline-none transition-all" placeholder="••••••••" required />
                     </div>
-                    <button className="w-full bg-imposing-gold text-imposing-black py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-xs shadow-2xl hover:bg-white transition-all transform hover:-translate-y-1">Autenticar Sistema</button>
+                    <button disabled={isLoggingIn} className={`w-full bg-imposing-gold text-imposing-black py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-xs shadow-2xl hover:bg-white transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3 ${isLoggingIn ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                      {isLoggingIn ? <><RotateCcw className="w-4 h-4 animate-spin" /> Autenticando...</> : 'Autenticar Sistema'}
+                    </button>
                     {error && (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                         <p className="text-red-500 text-[9px] uppercase font-bold text-center flex items-center justify-center gap-2 tracking-widest"><AlertCircle className="w-3 h-3" /> {error}</p>
