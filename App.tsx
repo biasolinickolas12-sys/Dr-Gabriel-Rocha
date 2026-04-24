@@ -588,7 +588,7 @@ const Hero = () => {
 
         {/* Solid Doctor Image (z-10, no transparency) */}
         <img 
-          src="1773347591988-Photoroom.png" 
+          src="/1773347591988-Photoroom.png" 
           alt="Gabriel Rocha" 
           className="relative z-10 w-full h-full object-contain scale-110 md:scale-125 hover:scale-[1.15] md:hover:scale-[1.30] object-top md:object-[80%_15%] translate-x-[1cm] translate-y-24 md:translate-y-40 transition-all duration-1000"
           referrerPolicy="no-referrer"
@@ -918,7 +918,7 @@ const Bio = () => {
                     <motion.img 
                       whileHover={{ scale: 1.05, opacity: 0.9 }}
                       transition={{ duration: 0.7 }}
-                      src="IMG_20260312_173941_718(1)(1).jpg.jpeg" 
+                      src="/IMG_20260312_173941_718(1)(1).jpg.jpeg" 
                       alt="Gabriel Rocha"
                       className="w-full aspect-[4/5] object-cover"
                       referrerPolicy="no-referrer"
