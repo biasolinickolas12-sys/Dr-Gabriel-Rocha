@@ -1963,6 +1963,8 @@ const Footer = () => (
 const FloatingCTA = () => {
   const isMobile = useIsMobile();
   
+  if (isMobile) return null;
+
   return (
     <motion.a
       href="#triagem-form"
@@ -1970,15 +1972,11 @@ const FloatingCTA = () => {
       animate={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(212, 175, 55, 0.8)" }}
       whileTap={{ scale: 0.95 }}
-      className={`fixed z-[110] flex items-center gap-3 bg-imposing-black/90 backdrop-blur-md text-imposing-gold shadow-[0_0_15px_rgba(212,175,55,0.5)] border-2 border-imposing-gold transition-all duration-500 rounded-full group ${
-        isMobile 
-          ? "bottom-28 right-6 px-5 py-3.5" 
-          : "bottom-10 right-10 px-8 py-5"
-      }`}
+      className="fixed z-[110] flex items-center gap-3 bg-imposing-black/90 backdrop-blur-md text-imposing-gold shadow-[0_0_15px_rgba(212,175,55,0.5)] border-2 border-imposing-gold transition-all duration-500 rounded-full group bottom-10 right-10 px-8 py-5"
     >
       <Calendar className="w-5 h-5 md:w-6 md:h-6 drop-shadow-[0_0_5px_rgba(212,175,55,0.5)]" />
       <span className="font-black uppercase tracking-[0.2em] text-[11px] md:text-sm drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]">
-        {isMobile ? "Agendar" : "Iniciar Agendamento"}
+        Iniciar Agendamento
       </span>
       
       {/* Neon Border Glow Overlay */}
@@ -1995,7 +1993,7 @@ const MobileBottomNav = () => {
     { name: "Sobre", href: "#sobre", icon: <User className="w-5 h-5" /> },
     { name: "Saber Mais", href: "#manifesto", icon: <Brain className="w-5 h-5" /> },
     { name: "FAQ", href: "#faq", icon: <HelpCircle className="w-5 h-5" /> },
-    { name: "Contato", href: "#contato", icon: <Phone className="w-5 h-5" /> }
+    { name: "Agendar", href: "#triagem-form", icon: <Calendar className="w-5 h-5" /> }
   ];
 
   return (
@@ -2009,9 +2007,13 @@ const MobileBottomNav = () => {
           <a 
             key={item.name} 
             href={item.href}
-            className="flex flex-col items-center gap-1 text-white/50 hover:text-imposing-gold transition-all active:scale-95 group"
+            className={`flex flex-col items-center gap-1 transition-all active:scale-95 group ${
+              item.name === "Agendar" ? "text-imposing-gold" : "text-white/50 hover:text-imposing-gold"
+            }`}
           >
-            <div className="p-1 rounded-lg group-hover:bg-imposing-gold/10 transition-colors">
+            <div className={`p-1 rounded-lg transition-colors ${
+              item.name === "Agendar" ? "bg-imposing-gold/20" : "group-hover:bg-imposing-gold/10"
+            }`}>
               {item.icon}
             </div>
             <span className="text-[9px] font-black uppercase tracking-wider">{item.name}</span>
