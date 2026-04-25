@@ -594,7 +594,7 @@ const Hero = () => {
         <img 
           src="/1773347591988-Photoroom.png" 
           alt="Gabriel Rocha" 
-          className="relative z-10 w-full h-full object-contain scale-[1.25] -translate-y-12 translate-x-8 brightness-125 contrast-110 md:brightness-100 md:contrast-100 md:scale-125 hover:scale-[1.30] md:hover:scale-[1.30] object-top md:object-[80%_15%] md:translate-x-[1cm] md:translate-y-40 transition-all duration-1000 drop-shadow-[0_10px_40px_rgba(0,0,0,1)] md:drop-shadow-none"
+          className="relative z-10 w-full h-full object-contain scale-[1.15] translate-y-24 translate-x-4 brightness-125 contrast-110 md:brightness-100 md:contrast-100 md:scale-125 hover:scale-[1.20] md:hover:scale-[1.30] object-top md:object-[80%_15%] md:translate-x-[1cm] md:translate-y-40 transition-all duration-1000 drop-shadow-[0_10px_40px_rgba(0,0,0,1)] md:drop-shadow-none"
           referrerPolicy="no-referrer"
         />
         
