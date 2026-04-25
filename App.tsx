@@ -594,12 +594,12 @@ const Hero = () => {
         <img 
           src="/1773347591988-Photoroom.png" 
           alt="Gabriel Rocha" 
-          className="relative z-10 w-full h-full object-contain scale-[1.35] translate-y-16 translate-x-2 md:scale-125 hover:scale-[1.40] md:hover:scale-[1.30] object-top md:object-[80%_15%] md:translate-x-[1cm] md:translate-y-40 transition-all duration-1000 drop-shadow-[0_10px_40px_rgba(0,0,0,1)] md:drop-shadow-none"
+          className="relative z-10 w-full h-full object-contain scale-[1.25] -translate-y-12 translate-x-8 brightness-125 contrast-110 md:brightness-100 md:contrast-100 md:scale-125 hover:scale-[1.30] md:hover:scale-[1.30] object-top md:object-[80%_15%] md:translate-x-[1cm] md:translate-y-40 transition-all duration-1000 drop-shadow-[0_10px_40px_rgba(0,0,0,1)] md:drop-shadow-none"
           referrerPolicy="no-referrer"
         />
         
         {/* Shadow Overlay in Front (z-20) */}
-        <div className="absolute inset-0 bg-gradient-to-r from-imposing-black via-imposing-black/85 to-transparent z-20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-imposing-black via-imposing-black/80 to-transparent md:bg-gradient-to-r md:from-imposing-black md:via-imposing-black/85 md:to-transparent z-20 pointer-events-none" />
       </motion.div>
 
       {/* Content Layer (Top) */}
