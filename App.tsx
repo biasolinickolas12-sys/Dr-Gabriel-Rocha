@@ -1225,7 +1225,7 @@ const Approach = () => {
            <Reveal y={40} duration={0.8} delay={0.2}>
              <div className="relative z-10 ml-10 md:ml-[15%] lg:ml-[20%] xl:ml-[25%] border-l md:border-l-[3px] border-imposing-gold pl-6 md:pl-12">
                <p className="text-2xl md:text-4xl lg:text-[2.5rem] text-gray-300 leading-[1.6] md:leading-[1.5] font-light max-w-4xl tracking-tight">
-                 <strong className="text-white font-medium">Minha prática clínica</strong> integra a sensibilidade da <span className="text-imposing-gold/90 font-medium whitespace-nowrap">Abordagem Centrada na Pessoa (ACP)</span> ao rigor estratégico da <span className="text-imposing-gold/90 font-medium">Terapia Cognitivo-Comportamental (TCC)</span>.
+                 <strong className="text-white font-medium">Minha prática clínica</strong> integra a sensibilidade da <span className="text-imposing-gold/90 font-medium md:whitespace-nowrap">Abordagem Centrada na Pessoa (ACP)</span> ao rigor estratégico da <span className="text-imposing-gold/90 font-medium">Terapia Cognitivo-Comportamental (TCC)</span>.
                  <br/><br/>
                  Acredito que o vínculo de confiança é o {` `}
                  <span className="relative inline-block group">
