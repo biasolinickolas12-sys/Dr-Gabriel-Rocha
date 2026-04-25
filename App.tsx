@@ -531,6 +531,10 @@ const FloatingParticles = () => {
 };
 
 const HeroBrain = () => {
+  const isMobile = useIsMobile();
+  
+  if (isMobile) return null;
+
   return (
     <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
       <div className="w-full h-full opacity-100">
@@ -590,7 +594,7 @@ const Hero = () => {
         <img 
           src="/1773347591988-Photoroom.png" 
           alt="Gabriel Rocha" 
-          className="relative z-10 w-full h-full object-contain scale-110 md:scale-125 hover:scale-[1.15] md:hover:scale-[1.30] object-top md:object-[80%_15%] translate-x-[1cm] translate-y-24 md:translate-y-40 transition-all duration-1000"
+          className="relative z-10 w-full h-full object-contain scale-[1.35] translate-y-16 translate-x-2 md:scale-125 hover:scale-[1.40] md:hover:scale-[1.30] object-top md:object-[80%_15%] md:translate-x-[1cm] md:translate-y-40 transition-all duration-1000 drop-shadow-[0_10px_40px_rgba(0,0,0,1)] md:drop-shadow-none"
           referrerPolicy="no-referrer"
         />
         
@@ -3028,6 +3032,11 @@ const App = () => {
   }, [isAdminOpen]);
 
   useEffect(() => {
+    // Prevent browser from restoring previous scroll position
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     // Force scroll to top on mount/reload
     window.scrollTo(0, 0);
     
