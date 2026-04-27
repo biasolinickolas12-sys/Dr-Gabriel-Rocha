@@ -2071,7 +2071,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   // Estado dos Pacientes (Supabase)
   const [patients, setPatients] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'patients' | 'agendamento'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'patients' | 'clientes_fixos' | 'agendamento'>('overview');
 
   const fetchPatients = async () => {
     setIsRefreshing(true);
@@ -2100,6 +2100,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     horarioSugerido: "",
     valor_sessao: 0,
     periodicidade: "Semanal",
+    dia_hora_fixo: "",
     origem: "Quiz",
     pauta_proxima: "",
     especialidade: "Geral"
@@ -2119,6 +2120,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
       horarioSugerido: timeParts[1] || "",
       valor_sessao: patient.valor_sessao || 0,
       periodicidade: patient.periodicidade || "Semanal",
+      dia_hora_fixo: patient.dia_hora_fixo || "",
       origem: patient.origem || "Quiz",
       pauta_proxima: patient.pauta_proxima || "",
       especialidade: patient.especialidade || "Geral"
@@ -2234,6 +2236,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
             {[
               { id: 'overview', label: 'Visão Geral', icon: <LayoutDashboard className="w-5 h-5" /> },
               { id: 'patients', label: 'Pacientes', icon: <User className="w-5 h-5" /> },
+              { id: 'clientes_fixos', label: 'Clientes Fixos', icon: <Calendar className="w-5 h-5" /> },
               { id: 'agendamento', label: 'Novo Registro', icon: <Plus className="w-5 h-5" /> },
             ].map((item) => (
               <button
@@ -2489,7 +2492,17 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             const bars = [];
                             for (let d = 1; d <= daysInMonth; d++) {
                               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                              const dayPatients = patients.filter(p => p.horario && p.horario.startsWith(dateStr));
+                              const currentDayOfWeek = new Date(year, month, d).getDay();
+                              const dayPatients = patients.filter(p => {
+                                if (p.horario && p.horario.startsWith(dateStr)) return true;
+                                if (p.periodicidade === 'Fixo' && p.dia_hora_fixo) {
+                                  try {
+                                    const parsed = JSON.parse(p.dia_hora_fixo);
+                                    if (parsed.dia === currentDayOfWeek) return true;
+                                  } catch (e) { }
+                                }
+                                return false;
+                              });
                               const count = dayPatients.length;
                               const isSelected = selectedDate === dateStr;
                               bars.push(
@@ -2529,12 +2542,32 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                           <div className="space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-4">
                             {(() => {
                               const today = new Date().toISOString().split('T')[0];
-                              const todayPatients = patients.filter(p => p.horario && p.horario.startsWith(today));
+                              const currentDayOfWeek = new Date().getDay();
+                              
+                              const todayPatients = patients.filter(p => {
+                                if (p.horario && p.horario.startsWith(today)) return true;
+                                if (p.periodicidade === 'Fixo' && p.dia_hora_fixo) {
+                                  try {
+                                    const parsed = JSON.parse(p.dia_hora_fixo);
+                                    if (parsed.dia === currentDayOfWeek) return true;
+                                  } catch (e) { }
+                                }
+                                return false;
+                              }).map(p => {
+                                if (p.periodicidade === 'Fixo' && p.dia_hora_fixo) {
+                                  try {
+                                    const parsed = JSON.parse(p.dia_hora_fixo);
+                                    return { ...p, horarioVirtual: `${today} ${parsed.hora}` };
+                                  } catch (e) { }
+                                }
+                                return { ...p, horarioVirtual: p.horario };
+                              });
+                              
                               if (todayPatients.length === 0) return <p className="text-[10px] text-white/20 uppercase font-black text-center py-10 tracking-widest">Nenhuma consulta hoje</p>;
                               
-                              return todayPatients.sort((a,b) => a.horario.localeCompare(b.horario)).map(p => (
-                                <div key={p.id} className="flex items-center justify-between p-4 rounded-2xl border bg-imposing-gold/10 border-imposing-gold/30">
-                                  <span className="text-[10px] font-mono font-black text-white/40">{p.horario.split(' ')[1]}</span>
+                              return todayPatients.sort((a,b) => (a.horarioVirtual || "").localeCompare(b.horarioVirtual || "")).map((p, index) => (
+                                <div key={p.id || `fixo-${index}`} className="flex items-center justify-between p-4 rounded-2xl border bg-imposing-gold/10 border-imposing-gold/30">
+                                  <span className="text-[10px] font-mono font-black text-white/40">{(p.horarioVirtual || "").split(' ')[1]}</span>
                                   <span className="text-[11px] font-black text-imposing-gold uppercase truncate max-w-[150px]">{p.nome}</span>
                                 </div>
                               ));
@@ -2725,6 +2758,90 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                   </div>
                 </motion.div>
               )}
+
+              {activeTab === 'clientes_fixos' && (
+                <motion.div 
+                  key="clientes_fixos"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="space-y-8"
+                >
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
+                    <div className="flex items-center gap-8">
+                      <div>
+                        <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-2">Clientes <span className="text-imposing-gold">Fixos</span></h2>
+                        <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Gestão de Agendamentos Recorrentes</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-white/[0.02] border-b border-white/10">
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Paciente</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Dia da Semana</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Horário</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {patients.filter(p => p.periodicidade === 'Fixo').map(p => {
+                          let diaTexto = "Desconhecido";
+                          let horaTexto = "--:--";
+                          if (p.dia_hora_fixo) {
+                            try {
+                              const parsed = JSON.parse(p.dia_hora_fixo);
+                              const dias = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+                              diaTexto = dias[parsed.dia] || "Desconhecido";
+                              horaTexto = parsed.hora || "--:--";
+                            } catch(e) {}
+                          }
+                          return (
+                          <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                            <td className="p-6">
+                              <p className="text-sm font-black text-white group-hover:text-imposing-gold transition-colors">{p.nome}</p>
+                              <p className="text-[9px] uppercase tracking-widest text-white/40 mt-1">{p.telefone}</p>
+                            </td>
+                            <td className="p-6">
+                              <span className="bg-imposing-gold/10 text-imposing-gold px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-imposing-gold/20">
+                                {diaTexto}
+                              </span>
+                            </td>
+                            <td className="p-6">
+                              <span className="text-xs font-mono font-bold text-white/70">{horaTexto}</span>
+                            </td>
+                            <td className="p-6 text-right">
+                              <div className="flex justify-end gap-3 opacity-50 group-hover:opacity-100 transition-opacity">
+                                <button onClick={() => startEdit(p)} className="p-2.5 bg-white/5 hover:bg-imposing-gold hover:text-imposing-black rounded-xl transition-all" title="Editar">
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => handleWhatsApp(p)} className="p-2.5 bg-white/5 hover:bg-green-500 hover:text-white rounded-xl transition-all" title="WhatsApp">
+                                  <MessageCircle className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => deletePatient(p.id)} className="p-2.5 bg-white/5 hover:bg-red-500 hover:text-white rounded-xl transition-all" title="Excluir">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )})}
+                        {patients.filter(p => p.periodicidade === 'Fixo').length === 0 && (
+                          <tr>
+                            <td colSpan={4} className="p-32 text-center">
+                              <div className="flex flex-col items-center gap-6 opacity-10">
+                                <Calendar className="w-20 h-20" />
+                                <p className="text-sm font-black uppercase tracking-[0.5em]">Nenhum cliente fixo registrado</p>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
           )}
         </div>
@@ -2832,9 +2949,46 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                   <option value="Quinzenal">Quinzenal</option>
                                   <option value="Mensal">Mensal</option>
                                   <option value="Avulso">Avulso</option>
+                                  <option value="Fixo">Fixo (Semanal Fixo)</option>
                                </select>
                             </div>
                          </div>
+
+                         {formData.periodicidade === 'Fixo' && (
+                           <div className="grid grid-cols-2 gap-6 pt-4">
+                             <div className="space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest font-black text-gray-500 ml-1">Dia da Semana Fixo</label>
+                                <select 
+                                  value={formData.dia_hora_fixo ? JSON.parse(formData.dia_hora_fixo).dia : "1"} 
+                                  onChange={(e) => {
+                                    const parsed = formData.dia_hora_fixo ? JSON.parse(formData.dia_hora_fixo) : { dia: 1, hora: "08:00" };
+                                    setFormData({...formData, dia_hora_fixo: JSON.stringify({...parsed, dia: Number(e.target.value)})});
+                                  }} 
+                                  className="w-full bg-black border border-white/10 px-5 py-5 text-white font-medium focus:border-imposing-gold outline-none rounded-xl cursor-pointer"
+                                >
+                                  <option value="1">Segunda-feira</option>
+                                  <option value="2">Terça-feira</option>
+                                  <option value="3">Quarta-feira</option>
+                                  <option value="4">Quinta-feira</option>
+                                  <option value="5">Sexta-feira</option>
+                                  <option value="6">Sábado</option>
+                                  <option value="0">Domingo</option>
+                                </select>
+                             </div>
+                             <div className="space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest font-black text-gray-500 ml-1">Horário Fixo</label>
+                                <input 
+                                  type="time" 
+                                  value={formData.dia_hora_fixo ? JSON.parse(formData.dia_hora_fixo).hora : "08:00"} 
+                                  onChange={(e) => {
+                                    const parsed = formData.dia_hora_fixo ? JSON.parse(formData.dia_hora_fixo) : { dia: 1, hora: "08:00" };
+                                    setFormData({...formData, dia_hora_fixo: JSON.stringify({...parsed, hora: e.target.value})});
+                                  }} 
+                                  className="w-full bg-black border border-white/10 px-5 py-5 text-white font-medium focus:border-imposing-gold outline-none rounded-xl" 
+                                />
+                             </div>
+                           </div>
+                         )}
 
                          <div className="space-y-3 pt-4">
                             <label className="text-[10px] uppercase tracking-widest font-black text-gray-500 ml-1">Origem do Paciente</label>
@@ -2848,6 +3002,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             <button 
                               onClick={async () => {
                                 const horario = formData.dataSugerida || formData.horarioSugerido ? `${formData.dataSugerida} ${formData.horarioSugerido}` : "";
+                                const dia_hora_fixo = formData.periodicidade === 'Fixo' ? (formData.dia_hora_fixo || JSON.stringify({ dia: 1, hora: "08:00" })) : "";
                                 
                                 if (editingId) {
                                   await supabase.from('patients').update({
@@ -2858,6 +3013,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     horario: horario,
                                     valor_sessao: formData.valor_sessao,
                                     periodicidade: formData.periodicidade,
+                                    dia_hora_fixo: dia_hora_fixo,
                                     origem: formData.origem,
                                     pauta_proxima: formData.pauta_proxima
                                   }).eq('id', editingId);
@@ -2873,6 +3029,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     horario: horario,
                                     valor_sessao: formData.valor_sessao,
                                     periodicidade: formData.periodicidade,
+                                    dia_hora_fixo: dia_hora_fixo,
                                     origem: formData.origem,
                                     pauta_proxima: formData.pauta_proxima,
                                     status_pagamento: false
@@ -2887,7 +3044,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 } else {
                                   setActiveTab('patients');
                                 }
-                                setFormData({ nome: "", idade: "", telefone: "", motivo: "", dataSugerida: "", horarioSugerido: "", valor_sessao: 0, periodicidade: "Semanal", origem: "Quiz", pauta_proxima: "", especialidade: "Geral" });
+                                setFormData({ nome: "", idade: "", telefone: "", motivo: "", dataSugerida: "", horarioSugerido: "", valor_sessao: 0, periodicidade: "Semanal", dia_hora_fixo: "", origem: "Quiz", pauta_proxima: "", especialidade: "Geral" });
                               }}
                               className="w-full py-7 bg-imposing-gold text-imposing-black font-black uppercase tracking-[0.5em] text-[11px] shadow-[0_20px_50px_rgba(212,175,55,0.4)] hover:bg-white transition-all rounded-2xl"
                             >
@@ -2993,8 +3150,26 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                     const h = String(i).padStart(2, '0');
                     const hour = `${h}:00`;
                     const today = new Date().toISOString().split('T')[0];
-                    // Procura qualquer paciente que tenha o horário começando com a data de hoje e o prefixo da hora
-                    const patient = patients.find(p => p.horario && p.horario.startsWith(today) && p.horario.includes(` ${h}:`));
+                    const currentDayOfWeek = new Date().getDay();
+                    
+                    const patient = patients.find(p => {
+                      if (p.horario && p.horario.startsWith(today) && p.horario.includes(` ${h}:`)) return true;
+                      if (p.periodicidade === 'Fixo' && p.dia_hora_fixo) {
+                        try {
+                          const parsed = JSON.parse(p.dia_hora_fixo);
+                          if (parsed.dia === currentDayOfWeek && parsed.hora.startsWith(`${h}:`)) return true;
+                        } catch (e) { }
+                      }
+                      return false;
+                    });
+                    
+                    let displayHorario = patient?.horario;
+                    if (patient && patient.periodicidade === 'Fixo' && patient.dia_hora_fixo) {
+                       try {
+                         const parsed = JSON.parse(patient.dia_hora_fixo);
+                         displayHorario = `${today} ${parsed.hora}`;
+                       } catch (e) { }
+                    }
                     
                     return (
                       <div key={hour} className={`flex items-center justify-between p-6 rounded-3xl border transition-all ${patient ? 'bg-imposing-gold border-imposing-gold text-imposing-black' : 'bg-white/[0.02] border-white/5 opacity-30 hover:opacity-100 hover:bg-white/[0.05]'}`}>
@@ -3003,7 +3178,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             {patient && (
                               <div>
                                 <p className="text-lg font-black uppercase tracking-tight">{patient.nome}</p>
-                                <p className="text-[9px] font-bold uppercase opacity-60">{patient.horario.split(' ')[1]} · {patient.origem}</p>
+                                <p className="text-[9px] font-bold uppercase opacity-60">{displayHorario?.split(' ')[1]} · {patient.origem}</p>
                               </div>
                             )}
                          </div>
