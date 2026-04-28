@@ -569,7 +569,7 @@ const Hero = () => {
       {/* Background/Base Layer */}
       <div className="absolute inset-0 bg-imposing-black" />
 
-      {/* Dr photo Layer */}
+      {/* Photo Layer */}
       <motion.div style={{ y, opacity }} className="absolute inset-0 z-[1] pointer-events-none flex justify-center">
         
         {/* Pattern of Architectural Golden Stripes BEHIND the doctor (z-0) */}
@@ -1274,7 +1274,7 @@ const TriagemDigital = () => {
     "Mapeando padrões de resposta...",
     "Identificando gatilhos de sofrimento...",
     "Estruturando prioridade clínica...",
-    "Preparando resumo para o Dr. Gabriel Rocha..."
+    "Preparando resumo para Gabriel Rocha..."
   ];
 
   const questions = [
@@ -1341,8 +1341,8 @@ const TriagemDigital = () => {
   };
 
   const sendToWhatsApp = () => {
-    const messageText = `*🏥 TRIAGEM DIGITAL - DR. GABRIEL ROCHA*\n\n` +
-      `👋 *Olá Dr. Gabriel, realizei o mapeamento digital pelo site:*\n\n` +
+    const messageText = `*🏥 TRIAGEM DIGITAL - Gabriel Rocha*\n\n` +
+      `👋 *Olá Gabriel, realizei o mapeamento digital pelo site:*\n\n` +
       `👤 *Nome:* ${answers.nome}\n` +
       `🧠 *Queixa Principal:* ${answers.queixa}\n` +
       `⏳ *Tempo dos Sintomas:* ${answers.tempo}\n` +
@@ -1426,7 +1426,7 @@ const TriagemDigital = () => {
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full bg-imposing-gold animate-ping" />
                     <p className="text-imposing-black/70 text-base md:text-lg leading-relaxed font-medium">
-                      Seus dados são <span className="text-imposing-black font-bold">criptografados</span> e entregues com exclusividade ao Dr. Gabriel Rocha.
+                      Seus dados são <span className="text-imposing-black font-bold">criptografados</span> e entregues com exclusividade aGabriel Rocha.
                     </p>
                   </div>
                 </div>
@@ -1635,7 +1635,7 @@ const TriagemDigital = () => {
                     <h3 className="text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter text-white">Tudo pronto,<br/> <span className="text-imposing-gold font-serif lowercase italic font-light italic">{answers.nome.split(' ')[0]}</span></h3>
                     
                     <p className="text-gray-400 text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">
-                      Sua pré-triagem foi concluída com sucesso. Agora, clique no botão abaixo para encaminhar seus dados com prioridade para o WhatsApp do Dr. Gabriel Rocha e iniciar seu agendamento.
+                      Sua pré-triagem foi concluída com sucesso. Agora, clique no botão abaixo para encaminhar seus dados com prioridade para o WhatsApp dGabriel Rocha e iniciar seu agendamento.
                     </p>
                     
                     <motion.button 
@@ -1666,19 +1666,19 @@ const FAQ = () => {
   const questions = [
     {
       question: "Como funciona a triagem digital?",
-      answer: "A triagem digital é um mapeamento técnico silencioso. Através de perguntas estruturadas, o sistema coleta dados cruciais sobre seu estado emocional atual, que são criptografados e entregues exclusivamente ao Dr. Gabriel Rocha para análise prévia à consulta."
+      answer: "A triagem digital é um mapeamento técnico silencioso. Através de perguntas estruturadas, o sistema coleta dados cruciais sobre seu estado emocional atual, que são criptografados e entregues exclusivamente aGabriel Rocha para análise prévia à consulta."
     },
     {
       question: "As sessões podem ser realizadas de forma remota?",
-      answer: "Sim. O Dr. Gabriel Rocha realiza atendimentos online através de plataformas seguras que garantem o sigilo profissional, permitindo que pacientes de qualquer lugar do mundo tenham acesso à sua metodologia."
+      answer: "Sim. O Gabriel Rocha realiza atendimentos online através de plataformas seguras que garantem o sigilo profissional, permitindo que pacientes de qualquer lugar do mundo tenham acesso à sua metodologia."
     },
     {
       question: "Qual a duração média do processo terapêutico?",
-      answer: "A duração é subjetiva e depende da complexidade de cada caso. No entanto, a abordagem do Dr. Gabriel foca em resultados concretos e no desenvolvimento de autonomia, evitando processos excessivamente longos sem objetivos claros."
+      answer: "A duração é subjetiva e depende da complexidade de cada caso. No entanto, a abordagem de Gabriel foca em resultados concretos e no desenvolvimento de autonomia, evitando processos excessivamente longos sem objetivos claros."
     },
     {
-      question: "O Dr. Gabriel Rocha atende convênios médicos?",
-      answer: "Sim. O Dr. Gabriel Rocha atende os planos Saúde Caixa, Saúde Petrobras, CASSI, Fachesf, Fundação Assefaz e Pro-Social TRF1."
+      question: "O Gabriel Rocha atende convênios médicos?",
+      answer: "Sim. O Gabriel Rocha atende os planos Saúde Caixa, Saúde Petrobras, CASSI, Fachesf, Fundação Assefaz e Pro-Social TRF1."
     },
     {
       question: "O que é a técnica de EMDR mencionada no site?",
@@ -1954,7 +1954,7 @@ const Footer = () => (
       </div>
 
       <div className="mt-40 pt-10 border-t border-imposing-black/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase font-bold tracking-[0.4em] text-imposing-black/20">
-        <p>© 2026 Dr. Gabriel Rocha. Elevando a consciência humana.</p>
+        <p>© 2026 Gabriel Rocha. Elevando a consciência humana.</p>
         <p>Developed with Pure Excellence.</p>
       </div>
     </div>
@@ -2170,12 +2170,12 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const handleWhatsApp = (patient: any) => {
     const cleanedPhone = patient.telefone.replace(/\D/g, '');
-    const msg = `Olá ${patient.nome.split(' ')[0]}, aqui é o Dr. Gabriel. Confirmando nossa sessão de hoje às ${patient.horario}. Tudo certo por aí?`;
+    const msg = `Olá ${patient.nome.split(' ')[0]}, aqui é Gabriel. Confirmando nossa sessão de hoje às ${patient.horario}. Tudo certo por aí?`;
     window.open(`https://api.whatsapp.com/send?phone=${cleanedPhone}&text=${encodeURIComponent(msg)}`, "_blank");
   };
 
   const copyToProntuario = (patient: any) => {
-    const text = `📋 REGISTRO DE TRIAGEM - DR. GABRIEL ROCHA\n` +
+    const text = `📋 REGISTRO DE TRIAGEM - Gabriel Rocha\n` +
       `----------------------------------------\n` +
       `👤 PACIENTE: ${patient.nome}\n` +
       `📅 ESPECIALIDADE: ${patient.especialidade}\n` +
@@ -2869,7 +2869,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
         </div>
 
         <p className="text-[9px] text-center text-white/5 uppercase tracking-[0.8em] font-black py-20">
-           Sistema de Gestão Clínica · Dr. Gabriel Rocha · Versão 4.0
+           Sistema de Gestão Clínica · Gabriel Rocha · Versão 4.0
         </p>
       </div>
 

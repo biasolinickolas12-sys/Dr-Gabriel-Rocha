@@ -1,0 +1,16 @@
+209: // Redução drástica de subdivisões no mobile para performance (80 -> 20)
+572: {/* Dr photo Layer */}
+1277: "Preparando resumo para o Dr. Gabriel Rocha..."
+1344: const messageText = `*🏥 TRIAGEM DIGITAL - DR. GABRIEL ROCHA*\n\n` +
+1345: `👋 *Olá Dr. Gabriel, realizei o mapeamento digital pelo site:*\n\n` +
+1429: Seus dados são <span className="text-imposing-black font-bold">criptografados</span> e entregues com exclusividade ao Dr. Gabriel Rocha.
+1638: Sua pré-triagem foi concluída com sucesso. Agora, clique no botão abaixo para encaminhar seus dados com prioridade para o WhatsApp do Dr. Gabriel Rocha e iniciar seu agendamento.
+1669: answer: "A triagem digital é um mapeamento técnico silencioso. Através de perguntas estruturadas, o sistema coleta dados cruciais sobre seu estado emocional atual, que são criptografados e entregues exclusivamente ao Dr. Gabriel Rocha para análise prévia à consulta."
+1673: answer: "Sim. O Dr. Gabriel Rocha realiza atendimentos online através de plataformas seguras que garantem o sigilo profissional, permitindo que pacientes de qualquer lugar do mundo tenham acesso à sua metodologia."
+1677: answer: "A duração é subjetiva e depende da complexidade de cada caso. No entanto, a abordagem do Dr. Gabriel foca em resultados concretos e no desenvolvimento de autonomia, evitando processos excessivamente longos sem objetivos claros."
+1680: question: "O Dr. Gabriel Rocha atende convênios médicos?",
+1681: answer: "Sim. O Dr. Gabriel Rocha atende os planos Saúde Caixa, Saúde Petrobras, CASSI, Fachesf, Fundação Assefaz e Pro-Social TRF1."
+1957: <p>© 2026 Dr. Gabriel Rocha. Elevando a consciência humana.</p>
+2173: const msg = `Olá ${patient.nome.split(' ')[0]}, aqui é o Dr. Gabriel. Confirmando nossa sessão de hoje às ${patient.horario}. Tudo certo por aí?`;
+2178: const text = `📋 REGISTRO DE TRIAGEM - DR. GABRIEL ROCHA\n` +
+2872: Sistema de Gestão Clínica · Dr. Gabriel Rocha · Versão 4.0
