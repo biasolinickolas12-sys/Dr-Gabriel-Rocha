@@ -961,6 +961,12 @@ const Bio = () => {
             <div className="lg:pl-16">
               <Reveal y={40} duration={0.8} delay={0.2}>
                 <div className="mb-10">
+                  {/* Name */}
+                  <h2 className="text-6xl md:text-7xl lg:text-[5rem] font-black leading-[0.9] tracking-tighter text-imposing-black mb-6">
+                    Gabriel
+                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-imposing-black via-gray-700 to-gray-400 block mt-1">Rocha.</span>
+                  </h2>
+
                   {/* Credential Badge */}
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
@@ -975,12 +981,6 @@ const Bio = () => {
                       Registro <span className="text-imposing-black">CRP 03-34761</span>
                     </span>
                   </motion.div>
-
-                  {/* Name */}
-                  <h2 className="text-6xl md:text-7xl lg:text-[5rem] font-black leading-[0.9] tracking-tighter text-imposing-black mb-8">
-                    Gabriel
-                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-imposing-black via-gray-700 to-gray-400 block mt-1">Rocha.</span>
-                  </h2>
 
                   {/* Role / Focus */}
                   <div className="text-2xl md:text-3xl lg:text-[2.2rem] font-medium text-gray-500 leading-[1.4] tracking-tight">
