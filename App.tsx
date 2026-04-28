@@ -91,6 +91,7 @@ const TiltCard = ({ children, className }: any) => {
 
 const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,8 +107,8 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
       animate={{ 
         y: 0, 
         opacity: 1,
-        paddingTop: isScrolled ? "0.75rem" : "1.25rem",
-        paddingBottom: isScrolled ? "0.75rem" : "1.25rem",
+        paddingTop: isScrolled ? (isMobile ? "0.5rem" : "0.75rem") : (isMobile ? "0.75rem" : "1.25rem"),
+        paddingBottom: isScrolled ? (isMobile ? "0.5rem" : "0.75rem") : (isMobile ? "0.75rem" : "1.25rem"),
         backgroundColor: isScrolled ? "rgba(7, 7, 7, 0.92)" : "rgba(10, 10, 10, 0.65)",
       }}
       transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
@@ -149,18 +150,18 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
       <motion.div 
         whileHover={{ scale: 1.02 }}
         onClick={onAdminClick}
-        className="flex items-center gap-5 cursor-pointer group"
+        className="flex items-center gap-3 md:gap-5 cursor-pointer group"
       >
         <motion.div 
           whileHover={{ rotate: 10, scale: 1.1 }}
-          className="w-10 h-10 md:w-12 md:h-12 bg-imposing-gold flex items-center justify-center relative shadow-[0_0_20px_rgba(212,175,55,0.6)] group-hover:shadow-[0_0_35px_rgba(212,175,55,1)] transition-all duration-500 after:absolute after:inset-0 after:shadow-[inset_0_0_10px_rgba(255,255,255,0.5)]"
+          className="w-8 h-8 md:w-12 md:h-12 bg-imposing-gold flex items-center justify-center relative shadow-[0_0_20px_rgba(212,175,55,0.6)] group-hover:shadow-[0_0_35px_rgba(212,175,55,1)] transition-all duration-500 after:absolute after:inset-0 after:shadow-[inset_0_0_10px_rgba(255,255,255,0.5)]"
         >
-          <span className="text-imposing-black font-black text-xl md:text-2xl drop-shadow-sm">GR</span>
+          <span className="text-imposing-black font-black text-sm md:text-2xl drop-shadow-sm">GR</span>
           <div className="absolute inset-0 border border-white/30" />
         </motion.div>
         <div className="flex flex-col">
-          <p className="font-black text-xl md:text-2xl uppercase tracking-tighter leading-none group-hover:text-imposing-gold group-hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.8)] transition-all duration-300">Gabriel Rocha</p>
-          <p className="text-[9px] md:text-[11px] uppercase tracking-[0.25em] font-bold text-imposing-white/50 group-hover:text-imposing-white/80 transition-colors duration-300">Psicólogo, autor e orador</p>
+          <p className="font-black text-base md:text-2xl uppercase tracking-tighter leading-none group-hover:text-imposing-gold group-hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.8)] transition-all duration-300">Gabriel Rocha</p>
+          <p className="text-[7px] md:text-[11px] uppercase tracking-[0.25em] font-bold text-imposing-white/50 group-hover:text-imposing-white/80 transition-colors duration-300">Psicólogo, autor e orador</p>
         </div>
       </motion.div>
       
