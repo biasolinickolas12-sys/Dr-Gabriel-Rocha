@@ -2127,7 +2127,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false);
   
   // Filtro de Mês para Pacientes
-  const [filterMonth, setFilterMonth] = useState<number | 'all'>(new Date().getMonth());
+  const [filterMonth, setFilterMonth] = useState<number | 'all'>('all');
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
 
   // Estado dos Pacientes (Supabase)
@@ -2270,11 +2270,11 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     // Filtro por mês/ano (se não houver data específica selecionada)
     let matchesMonth = true;
     if (!selectedDate && filterMonth !== 'all') {
-      if (p.horario) {
+      if (p.periodicidade === 'Fixo') {
+        matchesMonth = true;
+      } else if (p.horario) {
         const pDate = new Date(p.horario);
         matchesMonth = pDate.getMonth() === filterMonth && pDate.getFullYear() === filterYear;
-      } else if (p.periodicidade === 'Fixo') {
-        matchesMonth = true;
       } else {
         matchesMonth = false;
       }
@@ -2323,7 +2323,13 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
             ].map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id as any)}
+                onClick={() => {
+                  setActiveTab(item.id as any);
+                  if (item.id === 'patients') {
+                    setFilterMonth('all');
+                    setSelectedDate("");
+                  }
+                }}
                 className={`w-full flex flex-col md:flex-row items-center gap-4 px-4 py-4 rounded-2xl transition-all group ${
                   activeTab === item.id 
                     ? 'bg-imposing-gold text-imposing-black shadow-[0_10px_25px_rgba(212,175,55,0.2)]' 
@@ -2466,7 +2472,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Performance e Métricas Clínicas</p>
                     </div>
                     <div className="flex gap-4">
-                       <button onClick={() => setActiveTab('agendamento')} className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all">Relatórios</button>
+                       {/* Botão de Relatórios removido a pedido do usuário */}
                     </div>
                   </div>
 
