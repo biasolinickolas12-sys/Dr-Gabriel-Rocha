@@ -883,6 +883,7 @@ const SectionDivider = () => (
 );
 
 const Bio = () => {
+  const [isSpecialtiesModalOpen, setIsSpecialtiesModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -983,24 +984,15 @@ const Bio = () => {
                   </motion.div>
 
                   {/* Role / Focus */}
-                  <div className="text-2xl md:text-3xl lg:text-[2.2rem] font-medium text-gray-500 leading-[1.4] tracking-tight">
-                    Psicólogo Clínico focado no{` `}
-                    <br className="hidden md:block" />
-                    <span className="relative inline-flex items-center mt-2 lg:mt-3 mx-1">
-                      {/* Animated Gold Highlight Background */}
-                      <motion.span 
-                        initial={{ scaleX: 0 }}
-                        whileInView={{ scaleX: 1 }}
-                        transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }} 
-                        className="absolute inset-0 bg-imposing-gold origin-left rounded-sm -skew-x-6 shadow-[0_10px_20px_rgba(212,175,55,0.3)]"
-                      />
-                      {/* Text inside highlight */}
-                      <span className="relative z-10 px-4 py-1 text-imposing-black font-black uppercase tracking-wider text-xl md:text-2xl lg:text-[1.7rem]">
-                        manejo do luto
-                      </span>
-                    </span>
-                    <span className="text-imposing-black font-black block md:inline md:mt-0 mt-3"> e rupturas.</span>
+                  <div className="text-2xl md:text-3xl lg:text-[2.2rem] font-medium text-gray-500 leading-[1.4] tracking-tight mb-8">
+                    Psicólogo Clínico Especialista em :
                   </div>
+                  <button 
+                    onClick={() => setIsSpecialtiesModalOpen(true)}
+                    className="flex items-center gap-3 px-8 py-4 bg-imposing-gold text-imposing-black font-black uppercase tracking-widest text-sm rounded-full hover:bg-imposing-black hover:text-imposing-gold transition-all shadow-[0_10px_30px_rgba(212,175,55,0.4)]"
+                  >
+                    Ver Especialidades <ArrowRight className="w-5 h-5" />
+                  </button>
                 </div>
               </Reveal>
 
@@ -1091,6 +1083,60 @@ const Bio = () => {
           </motion.div>
         </div>
       </div>
+      {/* Specialties Modal */}
+      <AnimatePresence>
+        {isSpecialtiesModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-md flex items-center justify-center p-6"
+            onClick={() => setIsSpecialtiesModalOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-imposing-black border border-white/10 p-8 md:p-12 rounded-[2.5rem] max-w-2xl w-full shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setIsSpecialtiesModalOpen(false)}
+                className="absolute top-8 right-8 p-3 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white/40 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter mb-8">
+                Especialidades <span className="text-imposing-gold">Clínicas</span>
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+                {[
+                  "Ansiedade",
+                  "Depressão",
+                  "Burnout e Esgotamento Profissional",
+                  "Luto e Rupturas Amorosas",
+                  "Dependência Emocional",
+                  "Traumas",
+                  "TEPT (Transtorno de Estresse Pós-Traumático)",
+                  "Fobias",
+                  "Transtornos de Pânico",
+                  "Gestão de Crises Existenciais",
+                  "Fortalecimento da Autoestima e Identidade",
+                  "Transições de Vida e Carreira",
+                  "Desenvolvimento de Resiliência"
+                ].map((spec, idx) => (
+                  <div key={idx} className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-imposing-gold/30 transition-colors">
+                    <div className="w-2 h-2 rounded-full bg-imposing-gold flex-shrink-0" />
+                    <span className="text-white/80 text-sm font-medium">{spec}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
