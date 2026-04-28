@@ -2224,7 +2224,11 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   };
 
   const updateStatus = async (id: number, newStatus: string) => {
-    await supabase.from('patients').update({ status: newStatus }).eq('id', id);
+    const updateData: any = { status: newStatus };
+    if (newStatus === 'Finalizado') {
+      updateData.ultima_sessao = new Date().toISOString();
+    }
+    await supabase.from('patients').update(updateData).eq('id', id);
     fetchPatients();
   };
 
@@ -2747,6 +2751,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Identificação</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Documentação</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Agendamento</th>
+                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Última Sessão</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-center">Pagamento</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Status</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-right">Ações</th>
@@ -2805,6 +2810,20 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                  </div>
                                </div>
                             </td>
+                            <td className="p-8">
+                               {p.ultima_sessao ? (
+                                 <div className="space-y-1">
+                                   <p className="text-sm font-mono font-black text-imposing-gold">
+                                     {new Date(p.ultima_sessao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                                   </p>
+                                   <p className="text-[9px] text-white/20 uppercase font-black tracking-widest">
+                                     às {new Date(p.ultima_sessao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                   </p>
+                                 </div>
+                               ) : (
+                                 <span className="text-[9px] text-white/10 uppercase font-black tracking-widest">Nenhuma</span>
+                               )}
+                             </td>
                             <td className="p-8 text-center">
                                <button 
                                  onClick={() => togglePayment(p.id, p.status_pagamento)}
@@ -2877,6 +2896,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                           <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Paciente</th>
                           <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Dia da Semana</th>
                           <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Horário</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Última Sessão</th>
                           <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Ações</th>
                         </tr>
                       </thead>
@@ -2905,6 +2925,20 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             </td>
                             <td className="p-6">
                               <span className="text-xs font-mono font-bold text-white/70">{horaTexto}</span>
+                            </td>
+                            <td className="p-6">
+                              {p.ultima_sessao ? (
+                                <div className="space-y-1">
+                                  <p className="text-[11px] font-black text-imposing-gold">
+                                    {new Date(p.ultima_sessao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                                  </p>
+                                  <p className="text-[8px] text-white/20 uppercase font-black tracking-widest">
+                                    {new Date(p.ultima_sessao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                </div>
+                              ) : (
+                                <span className="text-[8px] text-white/10 uppercase font-black tracking-widest">Pendente</span>
+                              )}
                             </td>
                             <td className="p-6 text-right">
                               <div className="flex justify-end gap-3 opacity-50 group-hover:opacity-100 transition-opacity">
