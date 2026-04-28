@@ -2414,7 +2414,13 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
               </div>
             </div>
           ) : !isAuthenticated ? (
-            <div className="max-w-md mx-auto mt-20">
+            <div className="max-w-md mx-auto mt-20 relative">
+              <button 
+                onClick={onClose} 
+                className="absolute -top-12 right-0 text-white/40 hover:text-imposing-gold flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors"
+              >
+                Retornar ao Site <X className="w-4 h-4" />
+              </button>
               <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white/[0.02] border border-white/5 p-12 backdrop-blur-3xl rounded-[2.5rem] relative overflow-hidden shadow-2xl">
                  <div className="absolute top-0 left-0 w-full h-[2px] bg-imposing-gold" />
                  <div className="text-center mb-10">
