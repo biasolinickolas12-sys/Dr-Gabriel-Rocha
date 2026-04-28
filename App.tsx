@@ -1426,7 +1426,7 @@ const TriagemDigital = () => {
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full bg-imposing-gold animate-ping" />
                     <p className="text-imposing-black/70 text-base md:text-lg leading-relaxed font-medium">
-                      Seus dados são <span className="text-imposing-black font-bold">criptografados</span> e entregues com exclusividade aGabriel Rocha.
+                      Seus dados são <span className="text-imposing-black font-bold">criptografados</span> e entregues com exclusividade a Gabriel Rocha.
                     </p>
                   </div>
                 </div>
@@ -1666,7 +1666,7 @@ const FAQ = () => {
   const questions = [
     {
       question: "Como funciona a triagem digital?",
-      answer: "A triagem digital é um mapeamento técnico silencioso. Através de perguntas estruturadas, o sistema coleta dados cruciais sobre seu estado emocional atual, que são criptografados e entregues exclusivamente aGabriel Rocha para análise prévia à consulta."
+      answer: "A triagem digital é um mapeamento técnico silencioso. Através de perguntas estruturadas, o sistema coleta dados cruciais sobre seu estado emocional atual, que são criptografados e entregues exclusivamente a Gabriel Rocha para análise prévia à consulta."
     },
     {
       question: "As sessões podem ser realizadas de forma remota?",
