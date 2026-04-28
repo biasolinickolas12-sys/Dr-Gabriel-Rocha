@@ -2189,13 +2189,34 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const filteredPatients = patients.filter(p => {
     const matchesSearch = p.nome.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDate = !selectedDate || (p.horario && p.horario.startsWith(selectedDate));
+    
+    let matchesDate = false;
+    if (!selectedDate) {
+      matchesDate = true;
+    } else {
+      if (p.horario && p.horario.startsWith(selectedDate)) {
+        matchesDate = true;
+      } else if (p.periodicidade === 'Fixo' && p.dia_hora_fixo) {
+        try {
+          const parts = selectedDate.split('-');
+          const selectedDayOfWeek = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getDay();
+          const parsed = JSON.parse(p.dia_hora_fixo);
+          if (parsed.dia === selectedDayOfWeek) matchesDate = true;
+        } catch (e) {}
+      }
+    }
     
     // Filtro por mês/ano (se não houver data específica selecionada)
     let matchesMonth = true;
-    if (!selectedDate && p.horario && filterMonth !== 'all') {
-      const pDate = new Date(p.horario);
-      matchesMonth = pDate.getMonth() === filterMonth && pDate.getFullYear() === filterYear;
+    if (!selectedDate && filterMonth !== 'all') {
+      if (p.horario) {
+        const pDate = new Date(p.horario);
+        matchesMonth = pDate.getMonth() === filterMonth && pDate.getFullYear() === filterYear;
+      } else if (p.periodicidade === 'Fixo') {
+        matchesMonth = true;
+      } else {
+        matchesMonth = false;
+      }
     }
     
     return matchesSearch && (selectedDate ? matchesDate : matchesMonth);
