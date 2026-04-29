@@ -964,27 +964,12 @@ const Bio = () => {
                 <div className="mb-10">
                   {/* Name */}
                   <h2 className="text-6xl md:text-7xl lg:text-[5rem] font-black leading-[0.9] tracking-tighter text-imposing-black mb-6">
-                    Gabriel
-                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-imposing-black via-gray-700 to-gray-400 block mt-1">Rocha</span>
+                    Gabriel{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-imposing-black via-gray-700 to-gray-400">Rocha</span>
                   </h2>
 
-                  {/* Credential Badge */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-200 bg-white shadow-[0_4px_15px_rgba(0,0,0,0.03)] mb-8"
-                  >
-                    <div className="flex bg-imposing-gold/20 p-1 rounded-full">
-                       <div className="w-1.5 h-1.5 rounded-full bg-imposing-gold animate-pulse" />
-                    </div>
-                    <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-gray-500">
-                      Registro <span className="text-imposing-black">CRP 03-34761</span>
-                    </span>
-                  </motion.div>
-
                   {/* Role / Focus */}
-                  <div className="text-2xl md:text-3xl lg:text-[2.2rem] font-medium text-gray-500 leading-[1.4] tracking-tight mb-8">
+                  <div className="text-2xl md:text-3xl lg:text-[2.2rem] font-medium text-gray-500 leading-[1.4] tracking-tight mb-4">
                     Psicólogo com Prática Clínica de {` `}
                     <span className="relative inline-flex items-center mt-2 lg:mt-3 mx-1">
                       {/* Animated Gold Highlight Background */}
@@ -1001,6 +986,21 @@ const Bio = () => {
                     </span>
                     <span className="text-imposing-black font-black block md:inline md:mt-0 mt-3"> em :</span>
                   </div>
+
+                  {/* Credential Badge - Below title */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-200 bg-white shadow-[0_4px_15px_rgba(0,0,0,0.03)] mb-8"
+                  >
+                    <div className="flex bg-imposing-gold/20 p-1 rounded-full">
+                       <div className="w-1.5 h-1.5 rounded-full bg-imposing-gold animate-pulse" />
+                    </div>
+                    <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-gray-500">
+                      Registro <span className="text-imposing-black">CRP 03-34761</span>
+                    </span>
+                  </motion.div>
                   <button 
                     onClick={() => setIsSpecialtiesModalOpen(true)}
                     className="flex items-center gap-3 px-8 py-4 bg-imposing-gold text-imposing-black font-black uppercase tracking-widest text-sm rounded-full hover:bg-imposing-black hover:text-imposing-gold transition-all shadow-[0_10px_30px_rgba(212,175,55,0.4)]"
