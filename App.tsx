@@ -1729,16 +1729,16 @@ const FAQ = () => {
       answer: "A triagem digital é um mapeamento técnico silencioso. Através de perguntas estruturadas, o sistema coleta dados cruciais sobre seu estado emocional atual, que são criptografados e entregues exclusivamente a Gabriel Rocha para análise prévia à consulta."
     },
     {
-      question: "As sessões podem ser realizadas de forma remota?",
-      answer: "Sim. O Gabriel Rocha realiza atendimentos online através de plataformas seguras que garantem o sigilo profissional, permitindo que pacientes de qualquer lugar do mundo tenham acesso à sua metodologia."
+      question: "As sessões podem ser de forma Remota (Online)?",
+      answer: "Sim, atendo online através de plataformas seguras que garantem o sigilo profissional. Isso permite que você tenha acesso ao atendimento de qualquer lugar do mundo, com a mesma qualidade e comprometimento das sessões presenciais."
     },
     {
       question: "Qual a duração média do processo terapêutico?",
       answer: "A duração é subjetiva e depende da complexidade de cada caso. No entanto, a abordagem de Gabriel foca em resultados concretos e no desenvolvimento de autonomia, evitando processos excessivamente longos sem objetivos claros."
     },
     {
-      question: "O Gabriel Rocha atende convênios médicos?",
-      answer: "Sim. O Gabriel Rocha atende os planos Saúde Caixa, Saúde Petrobras, CASSI, Fachesf, Fundação Assefaz e Pro-Social TRF1."
+      question: "Atende por convênios Médicos?",
+      answer: "Sim, atendimento pelos planos Saúde Caixa, Saúde Petrobras, CASSI, Fachesf, Fundação Assefaz e Pro-Social TRF1."
     },
     {
       question: "O que é a técnica de EMDR mencionada no site?",
@@ -1885,7 +1885,7 @@ const Footer = () => (
             </h2>
             
             <p className="text-imposing-black/60 font-light text-xl md:text-2xl mb-12 max-w-2xl mx-auto leading-relaxed border-t border-imposing-black/5 pt-8">
-              A reconstrução da sua identidade começa com um único passo técnico e corajoso. Permita-se esta transformação clínica.
+              Assumir a responsabilidade pela própria evolução é o marco zero de uma vida autêntica. Se você está pronto para esse movimento, agende sua consulta agora.
             </p>
 
             <motion.a 
