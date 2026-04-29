@@ -162,7 +162,7 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
         <div className="flex flex-col">
           <p className="font-black text-base md:text-2xl uppercase tracking-tighter leading-none group-hover:text-imposing-gold group-hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.8)] transition-all duration-300">Gabriel Rocha</p>
           <p className="text-[7px] md:text-[10px] uppercase tracking-[0.25em] font-bold text-imposing-white/50 group-hover:text-imposing-white/80 transition-colors duration-300">Psicólogo, autor e palestrante</p>
-          <p className="text-[5.5px] md:text-[7.5px] uppercase tracking-[0.1em] font-bold text-imposing-gold/80 leading-none mt-0.5">CRP 03-34761</p>
+          <p className="text-[5.5px] md:text-[7.5px] uppercase tracking-[0.1em] font-bold text-imposing-gold/80 leading-none mt-0.5">CRP 03/34761</p>
         </div>
       </motion.div>
       
@@ -671,7 +671,7 @@ const Hero = () => {
                 />
                 
                 <span className="text-imposing-black font-black uppercase text-sm md:text-base tracking-[0.2em] relative z-10">
-                  Iniciar Tratamento
+                  Agendar Consulta
                 </span>
                 
                 <div className="relative z-10 w-10 h-10 md:w-12 md:h-12 bg-imposing-black flex items-center justify-center rounded-full group-hover:bg-white transition-colors duration-500 shadow-xl">
@@ -999,7 +999,7 @@ const Bio = () => {
                        <div className="w-1.5 h-1.5 rounded-full bg-imposing-gold animate-pulse" />
                     </div>
                     <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-gray-500">
-                      Registro <span className="text-imposing-black">CRP 03-34761</span>
+                      Registro <span className="text-imposing-black">CRP 03/34761</span>
                     </span>
                   </motion.div>
                   <button 
@@ -1900,7 +1900,7 @@ const Footer = () => (
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[35deg]"
               />
-              <span className="relative z-10">Agendar Agora</span>
+              <span className="relative z-10">Agendar Consulta</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform relative z-10" />
             </motion.a>
           </div>
@@ -1955,7 +1955,7 @@ const Footer = () => (
             <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all">Privacidade</motion.a>
             <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all">Termos</motion.a>
             <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all">Cookies</motion.a>
-            <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all text-imposing-black/20">CRP 03-34761</motion.a>
+            <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all text-imposing-black/20">CRP 03/34761</motion.a>
           </div>
         </div>
 
@@ -2048,7 +2048,7 @@ const FloatingCTA = () => {
     >
       <Calendar className="w-5 h-5 md:w-6 md:h-6 drop-shadow-[0_0_5px_rgba(212,175,55,0.5)]" />
       <span className="font-black uppercase tracking-[0.2em] text-[11px] md:text-sm drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]">
-        Iniciar Agendamento
+        Agendar agora
       </span>
       
       {/* Neon Border Glow Overlay */}
