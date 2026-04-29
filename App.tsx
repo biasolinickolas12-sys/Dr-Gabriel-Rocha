@@ -965,7 +965,7 @@ const Bio = () => {
                   {/* Name */}
                   <h2 className="text-6xl md:text-7xl lg:text-[5rem] font-black leading-[0.9] tracking-tighter text-imposing-black mb-6">
                     Gabriel
-                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-imposing-black via-gray-700 to-gray-400 block mt-1">Rocha.</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-imposing-black via-gray-700 to-gray-400 block mt-1">Rocha</span>
                   </h2>
 
                   {/* Credential Badge */}
@@ -985,7 +985,7 @@ const Bio = () => {
 
                   {/* Role / Focus */}
                   <div className="text-2xl md:text-3xl lg:text-[2.2rem] font-medium text-gray-500 leading-[1.4] tracking-tight mb-8">
-                    Psicólogo Clínico {` `}
+                    Psicólogo com Prática Clínica de {` `}
                     <span className="relative inline-flex items-center mt-2 lg:mt-3 mx-1">
                       {/* Animated Gold Highlight Background */}
                       <motion.span 
@@ -996,7 +996,7 @@ const Bio = () => {
                       />
                       {/* Text inside highlight */}
                       <span className="relative z-10 px-4 py-1 text-imposing-black font-black uppercase tracking-wider text-xl md:text-2xl lg:text-[1.7rem]">
-                        Especialista
+                        ênfase
                       </span>
                     </span>
                     <span className="text-imposing-black font-black block md:inline md:mt-0 mt-3"> em :</span>
@@ -1005,7 +1005,7 @@ const Bio = () => {
                     onClick={() => setIsSpecialtiesModalOpen(true)}
                     className="flex items-center gap-3 px-8 py-4 bg-imposing-gold text-imposing-black font-black uppercase tracking-widest text-sm rounded-full hover:bg-imposing-black hover:text-imposing-gold transition-all shadow-[0_10px_30px_rgba(212,175,55,0.4)]"
                   >
-                    Ver Especialidades <ArrowRight className="w-5 h-5" />
+                    ver práticas clínicas <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
               </Reveal>
@@ -1090,7 +1090,7 @@ const Bio = () => {
               <Reveal y={20} duration={0.8} delay={0.6}>
                  <div className="mt-16 flex items-center gap-6">
                    <div className="w-20 h-[2px] bg-imposing-gold" />
-                   <span className="uppercase tracking-[0.3em] font-black text-sm text-imposing-black">Fundador & Autor</span>
+                   <span className="uppercase tracking-[0.3em] font-black text-sm text-imposing-black">Escritor & Autor</span>
                  </div>
               </Reveal>
             </div>
