@@ -1128,19 +1128,19 @@ const Bio = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
                 {[
-                  "Ansiedade",
-                  "Depressão",
-                  "Burnout e Esgotamento Profissional",
-                  "Luto e Rupturas Amorosas",
-                  "Dependência Emocional",
-                  "Traumas",
-                  "TEPT (Transtorno de Estresse Pós-Traumático)",
-                  "Fobias",
-                  "Transtornos de Pânico",
-                  "Gestão de Crises Existenciais",
-                  "Fortalecimento da Autoestima e Identidade",
-                  "Transições de Vida e Carreira",
-                  "Desenvolvimento de Resiliência"
+                  "Ansiedade.",
+                  "Depressão.",
+                  "Burnout e Esgotamento Profissional.",
+                  "Luto e Rupturas Amorosas.",
+                  "Dependência Emocional.",
+                  "Traumas.",
+                  "TEPT (Transtorno de Estresse Pós-Traumático).",
+                  "Fobias.",
+                  "Transtornos de Pânico.",
+                  "Gestão de Crises Existenciais.",
+                  "Fortalecimento da Autoestima e Identidade.",
+                  "Transições de Vida e Carreira.",
+                  "Desenvolvimento de Resiliência."
                 ].map((spec, idx) => (
                   <div key={idx} className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-imposing-gold/30 transition-colors">
                     <div className="w-2 h-2 rounded-full bg-imposing-gold flex-shrink-0" />
@@ -1309,7 +1309,7 @@ const Approach = () => {
                <p className="text-xl md:text-2xl text-gray-400 leading-[1.8] font-light">
                  Buscando o constante aperfeiçoamento no cuidado com feridas emocionais profundas, sou <strong className="text-gray-200 font-medium">Pós-graduando em Psicotraumatologia Clínica</strong> e estou em formação em <strong className="text-gray-200 font-medium text-imposing-gold transition-colors duration-300">EMDR (TraumaClinic)</strong>, o que me permite oferecer um suporte ainda mais especializado no processamento de experiências traumáticas. 
                  <br/><br/>
-                 Com uma <strong className="text-white font-medium">visão multidisciplinar</strong> que une ciência e acolhimento, acompanho aqueles que enfrentam o fim de ciclos, ajudando-os a <span className="text-white font-semibold">ressignificar suas histórias</span> e a reencontrar o equilíbrio necessário para o <span className="text-white font-semibold border-b border-transparent hover:border-imposing-gold transition-colors pb-1 cursor-default">protagonismo da própria vida</span>.
+                 Com uma <strong className="text-white font-medium">visão multidisciplinar</strong>, que une ciência e acolhimento, acompanho aqueles que enfrentam o fim de ciclos, ajudando-os a <span className="text-white font-semibold">ressignificar suas histórias</span> e a reencontrar o equilíbrio necessário para o <span className="text-white font-semibold border-b border-transparent hover:border-imposing-gold transition-colors pb-1 cursor-default">protagonismo da própria vida</span>.
                </p>
              </div>
            </Reveal>
