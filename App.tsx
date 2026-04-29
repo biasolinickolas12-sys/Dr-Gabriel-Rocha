@@ -906,9 +906,9 @@ const Bio = () => {
       <div className="absolute left-[19%] top-[-20%] bottom-[-20%] w-[2px] bg-imposing-gold/40 transform -skew-x-[25deg] pointer-events-none z-0" />
       
       {/* Stripes running behind the text on the right side */}
-      <div className="absolute right-[8%] top-[-20%] bottom-[-20%] w-[60px] bg-gradient-to-l from-imposing-gold/10 to-transparent border-r border-imposing-gold/20 transform -skew-x-[25deg] pointer-events-none z-0" />
-      <div className="absolute right-[15%] top-[-20%] bottom-[-20%] w-[8px] bg-imposing-gold/20 backdrop-blur-sm transform -skew-x-[25deg] pointer-events-none z-0" />
-      <div className="absolute right-[22%] top-[-20%] bottom-[-20%] w-[1px] bg-imposing-gold/30 transform -skew-x-[25deg] pointer-events-none z-0" />
+      <div className="absolute right-[2%] top-[-20%] bottom-[-20%] w-[60px] bg-gradient-to-l from-imposing-gold/10 to-transparent border-r border-imposing-gold/20 transform -skew-x-[25deg] pointer-events-none z-0" />
+      <div className="absolute right-[5%] top-[-20%] bottom-[-20%] w-[8px] bg-imposing-gold/20 backdrop-blur-sm transform -skew-x-[25deg] pointer-events-none z-0" />
+      <div className="absolute right-[8%] top-[-20%] bottom-[-20%] w-[1px] bg-imposing-gold/30 transform -skew-x-[25deg] pointer-events-none z-0" />
 
       <div className="container mx-auto px-6 md:px-10 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
