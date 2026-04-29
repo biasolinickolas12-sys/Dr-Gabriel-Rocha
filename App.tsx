@@ -970,7 +970,7 @@ const Bio = () => {
 
                   {/* Role / Focus */}
                   <div className="text-2xl md:text-3xl lg:text-[2.2rem] font-medium text-gray-500 leading-[1.4] tracking-tight mb-4">
-                    Psicólogo com Prática Clínica de {` `}
+                    Psicólogo com {` `}
                     <span className="relative inline-flex items-center mt-2 lg:mt-3 mx-1">
                       {/* Animated Gold Highlight Background */}
                       <motion.span 
@@ -981,10 +981,10 @@ const Bio = () => {
                       />
                       {/* Text inside highlight */}
                       <span className="relative z-10 px-4 py-1 text-imposing-black font-black uppercase tracking-wider text-xl md:text-2xl lg:text-[1.7rem]">
-                        ênfase
+                        Ênfase Clínica
                       </span>
                     </span>
-                    <span className="text-imposing-black font-black block md:inline md:mt-0 mt-3"> em :</span>
+                    <span className="text-imposing-black font-black block md:inline md:mt-0 mt-3"> Em :</span>
                   </div>
 
                   {/* Credential Badge - Below title */}
