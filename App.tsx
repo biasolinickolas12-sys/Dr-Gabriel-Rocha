@@ -1726,23 +1726,23 @@ const FAQ = () => {
   const questions = [
     {
       question: "Como funciona a triagem digital?",
-      answer: "A triagem digital é um mapeamento técnico silencioso. Através de perguntas estruturadas, o sistema coleta dados cruciais sobre seu estado emocional atual, que são criptografados e entregues exclusivamente a Gabriel Rocha para análise prévia à consulta."
+      answer: "A triagem digital é um mapeamento que criei para conhecer melhor você antes da nossa primeira conversa. Através de perguntas estruturadas, coleto informações importantes sobre o seu estado emocional atual. Todos os seus dados são criptografados e entregues exclusivamente a mim para uma análise prévia à consulta."
     },
     {
       question: "As sessões podem ser de forma Remota (Online)?",
-      answer: "Sim, atendo online através de plataformas seguras que garantem o sigilo profissional. Isso permite que você tenha acesso ao atendimento de qualquer lugar do mundo, com a mesma qualidade e comprometimento das sessões presenciais."
+      answer: "Sim, atendo online através de plataformas seguras que garantem o sigilo profissional. Isso permite que você tenha acesso ao meu atendimento de qualquer lugar do mundo, com a mesma qualidade e comprometimento das sessões presenciais."
     },
     {
       question: "Qual a duração média do processo terapêutico?",
-      answer: "A duração é subjetiva e depende da complexidade de cada caso. No entanto, a abordagem de Gabriel foca em resultados concretos e no desenvolvimento de autonomia, evitando processos excessivamente longos sem objetivos claros."
+      answer: "A duração depende da complexidade de cada caso, e isso é algo que avaliamos juntos ao longo do processo. Minha abordagem foca em resultados concretos e no desenvolvimento da sua autonomia, evitando processos excessivamente longos sem objetivos claros."
     },
     {
       question: "Atende por convênios Médicos?",
-      answer: "Sim, atendimento pelos planos Saúde Caixa, Saúde Petrobras, CASSI, Fachesf, Fundação Assefaz e Pro-Social TRF1."
+      answer: "Sim! Atendo pelos planos Saúde Caixa, Saúde Petrobras, CASSI, Fachesf, Fundação Assefaz e Pro-Social TRF1."
     },
     {
       question: "O que é a técnica de EMDR mencionada no site?",
-      answer: "O EMDR (Eye Movement Desensitization and Reprocessing) é uma abordagem terapêutica eficaz, reconhecida pela OMS, para o tratamento de traumas e experiências dolorosas através da estimulação bilateral dos hemisférios cerebrais."
+      answer: "O EMDR (Eye Movement Desensitization and Reprocessing) é uma das abordagens que utilizo no meu trabalho clínico. É uma técnica reconhecida pela OMS, muito eficaz para o tratamento de traumas e experiências dolorosas, que funciona através da estimulação bilateral dos hemisférios cerebrais."
     }
   ];
 
