@@ -648,7 +648,7 @@ const Hero = () => {
               </div>
               
               {/* Modern "Floating" Label - Compact Solid */}
-              <div className="absolute -top-2.5 -left-1.5 bg-imposing-gold px-2.5 py-0.5 rounded-sm shadow-xl z-20">
+              <div className="absolute -top-5 -left-3 bg-imposing-gold px-2.5 py-0.5 rounded-sm shadow-xl z-20">
                 <span className="text-[8px] font-black uppercase tracking-[0.2em] text-imposing-black">Propósito</span>
               </div>
             </motion.div>
