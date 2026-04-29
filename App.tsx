@@ -2014,7 +2014,17 @@ const Footer = () => (
         </div>
       </div>
 
-      <div className="mt-40 pt-10 border-t border-imposing-black/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase font-bold tracking-[0.4em] text-imposing-black/20">
+
+      <Reveal>
+        <div className="mt-40 max-w-4xl border-t border-imposing-black/5 pt-12">
+          <p className="text-[11px] text-imposing-black/40 leading-relaxed font-medium">
+            <span className="text-imposing-black/60 block mb-3 uppercase tracking-[0.2em] font-black">Nota Ética:</span>
+            Todo o conteúdo deste site tem caráter informativo e educativo, não substituindo o processo psicoterapêutico individualizado. A prática clínica exercida segue rigorosamente as normas do Código de Ética Profissional do Psicólogo (CRP), garantindo o sigilo, o respeito à dignidade humana e a fundamentação científica das intervenções.
+          </p>
+        </div>
+      </Reveal>
+
+      <div className="mt-20 pt-10 border-t border-imposing-black/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase font-bold tracking-[0.4em] text-imposing-black/20">
         <p>© 2026 Gabriel Rocha. Elevando a consciência humana.</p>
         <p>Developed with Pure Excellence.</p>
       </div>
