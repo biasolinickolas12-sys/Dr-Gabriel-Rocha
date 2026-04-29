@@ -170,7 +170,7 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
         {[
           { name: "Home", href: "#" },
           { name: "Sobre", href: "#sobre" },
-          { name: "Especialidade", href: "#manifesto" },
+          { name: "Prática Clínica", href: "#manifesto" },
           { name: "FAQ", href: "#faq" },
           { name: "Contato", href: "#contato" }
         ].map((link) => (
@@ -1123,7 +1123,7 @@ const Bio = () => {
               </button>
               
               <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter mb-8">
-                Especialidades <span className="text-imposing-gold">Clínicas</span>
+                Prática <span className="text-imposing-gold">Clínica</span>
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
@@ -2243,7 +2243,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     const text = `📋 REGISTRO DE TRIAGEM - Gabriel Rocha\n` +
       `----------------------------------------\n` +
       `👤 PACIENTE: ${patient.nome}\n` +
-      `📅 ESPECIALIDADE: ${patient.especialidade}\n` +
+      `📅 PRÁTICA CLÍNICA: ${patient.especialidade}\n` +
       `🚩 QUEIXA: ${patient.dor}\n\n` +
       `📝 DETALHES DA TRIAGEM:\n${patient.triagem}\n` +
       `----------------------------------------\n` +
