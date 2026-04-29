@@ -161,7 +161,8 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
         </motion.div>
         <div className="flex flex-col">
           <p className="font-black text-base md:text-2xl uppercase tracking-tighter leading-none group-hover:text-imposing-gold group-hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.8)] transition-all duration-300">Gabriel Rocha</p>
-          <p className="text-[7px] md:text-[11px] uppercase tracking-[0.25em] font-bold text-imposing-white/50 group-hover:text-imposing-white/80 transition-colors duration-300">Psicólogo, autor e palestrante</p>
+          <p className="text-[7px] md:text-[10px] uppercase tracking-[0.25em] font-bold text-imposing-white/50 group-hover:text-imposing-white/80 transition-colors duration-300">Psicólogo, autor e palestrante</p>
+          <p className="text-[5.5px] md:text-[7.5px] uppercase tracking-[0.1em] font-bold text-imposing-gold/80 leading-none mt-0.5">CRP 03-34761</p>
         </div>
       </motion.div>
       
