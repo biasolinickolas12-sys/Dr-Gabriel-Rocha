@@ -611,7 +611,7 @@ const Hero = () => {
           
           <div className="relative inline-block w-fit">
             {/* Brain 3D Visualization (Massive DOM container to prevent clipping, adjusted position) */}
-            <div className="absolute top-[calc(60%-1cm)] md:top-[calc(50%-1cm)] left-1/2 md:left-[calc(50%+1cm)] -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] md:w-[1200px] md:h-[1200px] -z-20 pointer-events-none">
+            <div className="absolute top-[calc(60%-1cm)] md:top-[calc(50%-1cm)] left-1/2 md:left-[calc(50%+1cm)] -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] md:w-[900px] md:h-[900px] lg:w-[1050px] lg:h-[1050px] xl:w-[1200px] xl:h-[1200px] -z-20 pointer-events-none">
               <HeroBrain />
             </div>
             
