@@ -3663,7 +3663,7 @@ const App = () => {
                     onClick={() => setShowExitPopup(false)}
                     className="w-full py-5 bg-imposing-gold text-imposing-black rounded-full font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-imposing-gold/20 hover:brightness-110 transition-all text-center"
                   >
-                    Iniciar Triagem Gratuita
+                    Agendar consulta
                   </motion.a>
                   
                   <button 
