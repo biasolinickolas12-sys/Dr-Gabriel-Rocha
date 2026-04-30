@@ -1964,7 +1964,7 @@ const Footer = () => (
               </motion.a>
               <motion.p 
                 whileHover={{ scale: 1.02, x: 10 }}
-                className="text-4xl md:text-6xl font-black mb-16 origin-left cursor-default hover:text-imposing-gold transition-colors tracking-tighter"
+                className="text-[8vw] xs:text-[7.5vw] sm:text-4xl md:text-6xl font-black mb-16 origin-left cursor-default hover:text-imposing-gold transition-colors tracking-tighter whitespace-nowrap"
               >
                 (71) 9622-8759
               </motion.p>
