@@ -2428,21 +2428,32 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
    const addNewPayment = async () => {
     if (!paymentManagerModal || newPaymentValue <= 0) return;
+    
+    // Garantir que estamos enviando valores limpos
+    const cleanValue = Number(newPaymentValue);
     const newPayment = {
-      valor: newPaymentValue,
+      valor: cleanValue,
       data: new Date().toISOString(),
       id: Date.now(),
       status: newPaymentStatus
     };
+    
     const updatedHistory = [...paymentManagerModal.history, newPayment];
     
-    await supabase.from('patients').update({
-      historico_pagamentos: updatedHistory
+    const { error } = await supabase.from('patients').update({
+      historico_pagamentos: updatedHistory,
+      // Se for o primeiro pagamento ou se for pago, atualizamos a data de último pagamento para fins de faturamento
+      ...(newPaymentStatus ? { data_ultimo_pagamento: new Date().toISOString().split('T')[0] } : {})
     }).eq('id', paymentManagerModal.patientId);
+    
+    if (error) {
+      alert("Erro ao salvar pagamento: " + error.message);
+      return;
+    }
     
     setPaymentManagerModal({ ...paymentManagerModal, history: updatedHistory });
     setNewPaymentValue(0);
-    fetchPatients();
+    await fetchPatients(); // Forçar atualização de todos os dados
   };
 
   const updateExtraPaymentValue = async (paymentId: number, valor: number) => {
@@ -2754,14 +2765,22 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                               <p className="text-6xl font-black text-white leading-none">
                                 {patients.reduce((acc, p) => {
                                   let total = 0;
-                                  if (p.status_pagamento && p.horario) {
-                                    const pDate = new Date(p.horario);
-                                    const matchMonth = revenueFilterMonth === 'all' || pDate.getMonth() === revenueFilterMonth;
-                                    const matchYear = revenueFilterMonth === 'all' || pDate.getFullYear() === revenueFilterYear;
-                                    if (matchMonth && matchYear) total += Number(p.valor_sessao || 0);
-                                  } else if (p.status_pagamento && p.periodicidade === 'Fixo' && revenueFilterMonth === 'all') {
-                                    total += Number(p.valor_sessao || 0);
+                                  
+                                  // 1. Pagamento da sessão principal (usando horario ou data_ultimo_pagamento)
+                                  if (p.status_pagamento) {
+                                    const refDateStr = p.horario || p.data_ultimo_pagamento;
+                                    if (refDateStr) {
+                                      const pDate = new Date(refDateStr);
+                                      const matchMonth = revenueFilterMonth === 'all' || pDate.getMonth() === revenueFilterMonth;
+                                      const matchYear = revenueFilterMonth === 'all' || pDate.getFullYear() === revenueFilterYear;
+                                      if (matchMonth && matchYear) total += Number(p.valor_sessao || 0);
+                                    } else if (revenueFilterMonth === 'all') {
+                                      // Se não tem data mas está pago, conta no total geral
+                                      total += Number(p.valor_sessao || 0);
+                                    }
                                   }
+
+                                  // 2. Histórico de pagamentos
                                   if (p.historico_pagamentos) {
                                     try {
                                       const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
@@ -2790,15 +2809,22 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="space-y-3 max-h-[150px] overflow-y-auto custom-scrollbar pr-2"
+                            className="space-y-3 max-h-[200px] overflow-y-auto custom-scrollbar pr-2"
                           >
                             {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => {
                               const monthTotal = patients.reduce((acc, p) => {
                                 let total = 0;
-                                if (p.status_pagamento && p.horario) {
-                                  const pDate = new Date(p.horario);
-                                  if (pDate.getMonth() === i && pDate.getFullYear() === revenueFilterYear) total += Number(p.valor_sessao || 0);
+                                
+                                // Sessão principal
+                                if (p.status_pagamento) {
+                                  const refDateStr = p.horario || p.data_ultimo_pagamento;
+                                  if (refDateStr) {
+                                    const pDate = new Date(refDateStr);
+                                    if (pDate.getMonth() === i && pDate.getFullYear() === revenueFilterYear) total += Number(p.valor_sessao || 0);
+                                  }
                                 }
+
+                                // Histórico
                                 if (p.historico_pagamentos) {
                                   try {
                                     const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
@@ -2814,10 +2840,15 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 return acc + total;
                               }, 0);
                               
+                              if (monthTotal === 0) return null; // Não mostrar meses sem faturamento para limpar a vista
+
                               return (
-                                <div key={m} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                                  <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">{m} {revenueFilterYear}</span>
-                                  <span className="text-xs font-black text-green-500">R$ {monthTotal.toLocaleString('pt-BR')}</span>
+                                <div key={m} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/[0.08] transition-all">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                                    <span className="text-[11px] font-black uppercase text-white tracking-[0.2em]">{m} {revenueFilterYear}</span>
+                                  </div>
+                                  <span className="text-sm font-black text-white">R$ {monthTotal.toLocaleString('pt-BR')}</span>
                                 </div>
                               );
                             })}
