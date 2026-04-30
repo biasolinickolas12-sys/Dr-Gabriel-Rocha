@@ -1433,10 +1433,10 @@ const TriagemDigital = () => {
           <div className="absolute left-[0%] top-[-30%] bottom-[-30%] w-[3px] bg-imposing-gold transform -skew-x-[25deg] opacity-60 shadow-[0_0_20px_rgba(212,175,55,0.2)]" />
           
           {/* Black Bold Band */}
-          <div className="absolute left-[4%] top-[-30%] bottom-[-30%] w-[100px] bg-black/[0.04] transform -skew-x-[25deg] border-x border-black/5 backdrop-blur-[1px]" />
+          <div className="absolute left-[0%] top-[-30%] bottom-[-30%] w-[100px] bg-black/[0.04] transform -skew-x-[25deg] border-x border-black/5 backdrop-blur-[1px]" />
           
-          {/* Gold Main Stripe - Moved further left away from "digital" */}
-          <div className="absolute left-[6%] top-[-30%] bottom-[-30%] w-[12px] bg-imposing-gold shadow-[0_0_40px_rgba(212,175,55,0.5)] transform -skew-x-[25deg]" />
+          {/* Gold Main Stripe - Moved to far left to avoid "digital" */}
+          <div className="absolute left-[2%] top-[-30%] bottom-[-30%] w-[12px] bg-imposing-gold shadow-[0_0_40px_rgba(212,175,55,0.5)] transform -skew-x-[25deg]" />
           
           {/* Right Side Group */}
           {/* Wide Golden/Matte Band */}
@@ -1916,7 +1916,7 @@ const Footer = () => (
               <motion.a 
                 whileHover={{ scale: 1.02, x: 10 }}
                 href="mailto:gabrielrocha.psicologia@gmail.com" 
-                className="text-[clamp(1.1rem,6vw,2.5rem)] md:text-5xl font-black hover:text-imposing-gold transition-colors mb-4 block origin-left tracking-tighter md:break-normal break-words"
+                className="text-[3.2vw] xs:text-[3.8vw] sm:text-2xl md:text-5xl font-black hover:text-imposing-gold transition-colors mb-4 block origin-left tracking-tighter whitespace-nowrap"
               >
                 gabrielrocha.psicologia@gmail.com
               </motion.a>
