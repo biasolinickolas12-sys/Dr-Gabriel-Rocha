@@ -3486,12 +3486,16 @@ const App = () => {
   const [isSavingLead, setIsSavingLead] = useState(false);
 
   useEffect(() => {
-    const hasFilled = localStorage.getItem('entry_popup_filled');
-    if (!hasFilled) {
-      const timer = setTimeout(() => setShowEntryPopup(true), 2500);
+    const hasFilled = localStorage.getItem('entry_popup_v1');
+    console.log("Entry Popup Status:", hasFilled ? "Already filled" : "Pending...");
+    if (!hasFilled && !isAdminOpen) {
+      const timer = setTimeout(() => {
+        console.log("Showing Entry Popup...");
+        setShowEntryPopup(true);
+      }, 2500);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isAdminOpen]);
 
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -3500,7 +3504,7 @@ const App = () => {
     setIsSavingLead(true);
     try {
       await supabase.from('leads_entrada').insert([leadData]);
-      localStorage.setItem('entry_popup_filled', 'true');
+      localStorage.setItem('entry_popup_v1', 'true');
       setShowEntryPopup(false);
     } catch (e) {
       console.error(e);
@@ -3548,7 +3552,7 @@ const App = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 backdrop-blur-2xl bg-black/85"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-6 backdrop-blur-2xl bg-black/85"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 40 }}
@@ -3559,7 +3563,7 @@ const App = () => {
               <button 
                 onClick={() => {
                   setShowEntryPopup(false);
-                  localStorage.setItem('entry_popup_filled', 'true'); // Only show once
+                  localStorage.setItem('entry_popup_v1', 'true'); // Only show once
                 }}
                 className="absolute top-8 right-8 text-white/30 hover:text-imposing-gold transition-colors"
               >
