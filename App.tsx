@@ -2423,14 +2423,43 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     });
   };
 
-  const addNewPayment = async (valor: number) => {
+   const addNewPayment = async (valor: number) => {
     if (!paymentManagerModal) return;
     const newPayment = {
       valor,
-      data: new Date().toISOString().split('T')[0],
-      id: Date.now()
+      data: new Date().toISOString(),
+      id: Date.now(),
+      status: true // Iniciamos como Pago por padrão ao adicionar manualmente
     };
     const updatedHistory = [...paymentManagerModal.history, newPayment];
+    
+    await supabase.from('patients').update({
+      historico_pagamentos: updatedHistory
+    }).eq('id', paymentManagerModal.patientId);
+    
+    setPaymentManagerModal({ ...paymentManagerModal, history: updatedHistory });
+    fetchPatients();
+  };
+
+  const updateExtraPaymentValue = async (paymentId: number, valor: number) => {
+    if (!paymentManagerModal) return;
+    const updatedHistory = paymentManagerModal.history.map(p => 
+      p.id === paymentId ? { ...p, valor } : p
+    );
+    
+    await supabase.from('patients').update({
+      historico_pagamentos: updatedHistory
+    }).eq('id', paymentManagerModal.patientId);
+    
+    setPaymentManagerModal({ ...paymentManagerModal, history: updatedHistory });
+    fetchPatients();
+  };
+
+  const setExtraPaymentStatus = async (paymentId: number, status: boolean) => {
+    if (!paymentManagerModal) return;
+    const updatedHistory = paymentManagerModal.history.map(p => 
+      p.id === paymentId ? { ...p, status } : p
+    );
     
     await supabase.from('patients').update({
       historico_pagamentos: updatedHistory
@@ -2727,7 +2756,9 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     const payDate = new Date(pay.data);
                                     const matchMonth = revenueFilterMonth === 'all' || payDate.getMonth() === revenueFilterMonth;
                                     const matchYear = revenueFilterMonth === 'all' || payDate.getFullYear() === revenueFilterYear;
-                                    return s + (matchMonth && matchYear ? Number(pay.valor || 0) : 0);
+                                    // Consideramos pago se status for true ou se não houver campo status (legado)
+                                    const isPaid = pay.status === undefined ? true : pay.status === true;
+                                    return s + (matchMonth && matchYear && isPaid ? Number(pay.valor || 0) : 0);
                                   }, 0);
                                 }
                               } catch (e) {}
@@ -3699,12 +3730,12 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                  <p className="text-[10px] text-imposing-gold uppercase font-black tracking-widest">{paymentManagerModal.nome}</p>
                </div>
 
-               <div className="space-y-8">
+               <div className="space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 pb-6">
                  {/* Pagamento Principal */}
-                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl space-y-6">
+                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl space-y-6 relative group">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Valor da Sessão</p>
+                        <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Pagamento da Sessão</p>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-white/40">R$</span>
                           <input 
@@ -3736,44 +3767,66 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                     </div>
                  </div>
 
-                 {/* Histórico e Adicionar */}
-                 <div className="space-y-4">
-                   <div className="flex items-center justify-between px-2">
-                     <p className="text-[10px] uppercase tracking-widest font-black text-white/20">Histórico Adicional</p>
-                     <button 
-                        onClick={() => {
-                          const val = prompt("Digite o valor do pagamento adicional (apenas números):");
-                          if (val) addNewPayment(Number(val));
-                        }}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase text-imposing-gold hover:text-white transition-colors"
-                     >
-                       <Plus className="w-3 h-3" /> Adicionar Valor
-                     </button>
-                   </div>
+                 {/* Lista de Pagamentos Extras */}
+                 {paymentManagerModal.history.map((pay: any) => (
+                    <div key={pay.id} className="bg-white/5 border border-white/5 p-8 rounded-3xl space-y-6 relative group">
+                       <button 
+                         onClick={() => removePaymentFromHistory(pay.id)}
+                         className="absolute top-4 right-4 p-2 text-white/10 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                       >
+                         <Trash2 className="w-4 h-4" />
+                       </button>
+                       <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Novo Pagamento · {new Date(pay.data).toLocaleDateString('pt-BR')}</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-black text-white/40">R$</span>
+                              <input 
+                                type="number" 
+                                value={pay.valor} 
+                                onChange={(e) => updateExtraPaymentValue(pay.id, Number(e.target.value))}
+                                className="bg-transparent text-2xl font-black text-white border-b border-white/10 focus:border-imposing-gold outline-none w-32"
+                              />
+                            </div>
+                          </div>
+                          <div className={`p-4 rounded-2xl border ${pay.status !== false ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                            {pay.status !== false ? <Check className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                          </div>
+                       </div>
+                       <div className="flex gap-3">
+                          <button 
+                            onClick={() => setExtraPaymentStatus(pay.id, true)}
+                            className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${pay.status !== false ? 'bg-green-500 border-green-500 text-black shadow-lg shadow-green-500/20' : 'bg-white/5 border-white/10 text-white/40'}`}
+                          >
+                            Pago
+                          </button>
+                          <button 
+                            onClick={() => setExtraPaymentStatus(pay.id, false)}
+                            className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${pay.status === false ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-white/5 border-white/10 text-white/40'}`}
+                          >
+                            Pendente
+                          </button>
+                       </div>
+                    </div>
+                 ))}
 
-                   <div className="max-h-[200px] overflow-y-auto custom-scrollbar space-y-2">
-                     {paymentManagerModal.history.length > 0 ? paymentManagerModal.history.map((pay: any) => (
-                       <div key={pay.id} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex items-center justify-between">
-                         <div>
-                           <p className="text-sm font-black text-white">R$ {Number(pay.valor).toLocaleString('pt-BR')}</p>
-                           <p className="text-[9px] text-white/20 font-bold uppercase">{new Date(pay.data).toLocaleDateString('pt-BR')}</p>
-                         </div>
-                         <button onClick={() => removePaymentFromHistory(pay.id)} className="p-2 text-white/10 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                       </div>
-                     )) : (
-                       <div className="text-center py-8 opacity-20 border-2 border-dashed border-white/5 rounded-3xl">
-                         <p className="text-[10px] font-black uppercase tracking-widest">Nenhum registro extra</p>
-                       </div>
-                     )}
-                   </div>
-                 </div>
+                 <button 
+                    onClick={() => {
+                      const val = prompt("Digite o valor do novo pagamento:");
+                      if (val) addNewPayment(Number(val));
+                    }}
+                    className="w-full py-6 border-2 border-dashed border-white/5 rounded-3xl text-white/20 hover:text-imposing-gold hover:border-imposing-gold/30 hover:bg-imposing-gold/5 transition-all flex items-center justify-center gap-3 group"
+                 >
+                    <Plus className="w-5 h-5 group-hover:scale-125 transition-transform" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Adicionar Novo Pagamento</span>
+                 </button>
 
                  <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                     <p className="text-[11px] font-black uppercase text-white/40">Total Geral Recebido:</p>
                     <p className="text-2xl font-black text-green-500">
                       R$ {(
                         (paymentManagerModal.statusPagamento ? paymentManagerModal.valorSessao : 0) + 
-                        paymentManagerModal.history.reduce((s, p) => s + Number(p.valor), 0)
+                        paymentManagerModal.history.reduce((s: number, p: any) => s + (p.status !== false ? Number(p.valor) : 0), 0)
                       ).toLocaleString('pt-BR')}
                     </p>
                  </div>
