@@ -2968,19 +2968,18 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                     </div>
                   </div>
 
-                  <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative">
-                    <table className="w-full text-left border-collapse">
+                  <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[800px]">
                       <thead>
-                        <tr className="bg-white/[0.02] border-b border-white/10">
-                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Paciente</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Dia da Semana</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Horário</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Última Sessão</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Ações</th>
+                        <tr className="bg-white/5 border-b border-white/5">
+                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Identificação</th>
+                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Dia da Semana</th>
+                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Horário</th>
+                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-right">Ações</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        {patients.filter(p => p.periodicidade === 'Fixo').map(p => {
+                      <tbody className="divide-y divide-white/[0.03]">
+                        {patients.filter(p => p.periodicidade === 'Fixo').map((p, idx) => {
                           let diaTexto = "Desconhecido";
                           let horaTexto = "--:--";
                           if (p.dia_hora_fixo) {
@@ -2992,47 +2991,40 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             } catch(e) {}
                           }
                           return (
-                          <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
-                            <td className="p-6">
-                              <p className="text-sm font-black text-white group-hover:text-imposing-gold transition-colors">{p.nome}</p>
-                              <p className="text-[9px] uppercase tracking-widest text-white/40 mt-1">{p.telefone}</p>
+                          <motion.tr
+                            key={p.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.03 }}
+                            className="hover:bg-white/[0.03] transition-all group"
+                          >
+                            <td className="p-8">
+                              <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 rounded-2xl bg-imposing-gold/10 flex items-center justify-center text-imposing-gold font-black text-sm border border-imposing-gold/20 group-hover:rotate-12 group-hover:scale-110 transition-all duration-500">
+                                  {p.nome.split(' ').map((n:any)=>n[0]).join('').substring(0,2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="text-white font-bold text-lg tracking-tight group-hover:text-imposing-gold transition-colors">{p.nome}</p>
+                                  <p className="text-[9px] uppercase tracking-widest text-white/30 mt-1">{p.telefone}</p>
+                                </div>
+                              </div>
                             </td>
-                            <td className="p-6">
-                              <span className="bg-imposing-gold/10 text-imposing-gold px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-imposing-gold/20">
+                            <td className="p-8">
+                              <span className="bg-imposing-gold/10 text-imposing-gold px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest border border-imposing-gold/20">
                                 {diaTexto}
                               </span>
                             </td>
-                            <td className="p-6">
-                              <span className="text-xs font-mono font-bold text-white/70">{horaTexto}</span>
+                            <td className="p-8">
+                              <span className="text-sm font-mono font-black text-white/90">{horaTexto}</span>
                             </td>
-                            <td className="p-6">
-                              {p.ultima_sessao ? (
-                                <div className="space-y-1">
-                                  <p className="text-[11px] font-black text-imposing-gold">
-                                    {new Date(p.ultima_sessao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                                  </p>
-                                  <p className="text-[8px] text-white/20 uppercase font-black tracking-widest">
-                                    {new Date(p.ultima_sessao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                                  </p>
-                                </div>
-                              ) : (
-                                <span className="text-[8px] text-white/10 uppercase font-black tracking-widest">Pendente</span>
-                              )}
-                            </td>
-                            <td className="p-6 text-right">
-                              <div className="flex justify-end gap-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => startEdit(p)} className="p-2.5 bg-white/5 hover:bg-imposing-gold hover:text-imposing-black rounded-xl transition-all" title="Editar">
-                                  <Edit className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => handleWhatsApp(p)} className="p-2.5 bg-white/5 hover:bg-green-500 hover:text-white rounded-xl transition-all" title="WhatsApp">
-                                  <MessageCircle className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => deletePatient(p.id)} className="p-2.5 bg-white/5 hover:bg-red-500 hover:text-white rounded-xl transition-all" title="Excluir">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
+                            <td className="p-8 text-right">
+                              <div className="flex justify-end items-center gap-3">
+                                <button onClick={() => handleWhatsApp(p)} className="p-4 bg-white/5 hover:bg-green-500/10 border border-white/5 hover:border-green-500/20 text-white/20 hover:text-green-500 rounded-2xl transition-all"><MessageCircle className="w-5 h-5" /></button>
+                                <button onClick={() => startEdit(p)} className="p-4 bg-white/5 hover:bg-blue-500/10 border border-white/5 hover:border-blue-500/20 text-white/20 hover:text-blue-500 rounded-2xl transition-all"><Edit className="w-5 h-5" /></button>
+                                <button onClick={() => deletePatient(p.id)} className="p-4 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-white/20 hover:text-red-500 rounded-2xl transition-all"><Trash2 className="w-5 h-5" /></button>
                               </div>
                             </td>
-                          </tr>
+                          </motion.tr>
                         )})}
                         {patients.filter(p => p.periodicidade === 'Fixo').length === 0 && (
                           <tr>
