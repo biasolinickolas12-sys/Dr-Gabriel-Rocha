@@ -1957,7 +1957,7 @@ const Footer = () => (
               <motion.a 
                 whileHover={{ scale: 1.02, x: 10 }}
                 href="mailto:gabrielrocha.psicologia@gmail.com" 
-                className="text-[3.2vw] xs:text-[3.8vw] sm:text-2xl md:text-5xl font-black hover:text-imposing-gold transition-colors mb-4 block origin-left tracking-tighter whitespace-nowrap"
+                className="text-[4.2vw] xs:text-[4.8vw] sm:text-2xl md:text-5xl font-black hover:text-imposing-gold transition-colors mb-4 block origin-left tracking-tighter whitespace-nowrap"
               >
                 gabrielrocha.psicologia@gmail.com
               </motion.a>
