@@ -2183,7 +2183,15 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   // Estado dos Pacientes (Supabase)
   const [patients, setPatients] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'patients' | 'clientes_fixos' | 'agendamento'>('overview');
+  const [leads, setLeads] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'patients' | 'clientes_fixos' | 'agendamento' | 'leads'>('overview');
+
+  const fetchLeads = async () => {
+    try {
+      const { data } = await supabase.from('leads_entrada').select('*').order('created_at', { ascending: false });
+      if (data) setLeads(data);
+    } catch (e) {}
+  };
 
   const fetchPatients = async () => {
     setIsRefreshing(true);
@@ -2193,6 +2201,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
         setPatients(data);
         setLastUpdated(new Date());
       }
+      await fetchLeads();
     } finally {
       // Pequeno delay para feedback visual do botão girando
       setTimeout(() => setIsRefreshing(false), 500);
@@ -2271,6 +2280,13 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     if(confirm("Deseja realmente excluir este paciente?")) {
       await supabase.from('patients').delete().eq('id', id);
       fetchPatients();
+    }
+  };
+
+  const deleteLead = async (id: string) => {
+    if(confirm("Deseja realmente excluir este lead?")) {
+      await supabase.from('leads_entrada').delete().eq('id', id);
+      fetchLeads();
     }
   };
 
@@ -2373,6 +2389,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
             {[
               { id: 'overview', label: 'Visão Geral', icon: <LayoutDashboard className="w-5 h-5" /> },
               { id: 'patients', label: 'Pacientes', icon: <User className="w-5 h-5" /> },
+              { id: 'leads', label: 'Leads Entrada', icon: <Phone className="w-5 h-5" /> },
               { id: 'clientes_fixos', label: 'Clientes Fixos', icon: <Calendar className="w-5 h-5" /> },
               { id: 'agendamento', label: 'Novo Registro', icon: <Plus className="w-5 h-5" /> },
             ].map((item) => (
@@ -3021,6 +3038,86 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                   </div>
                 </motion.div>
               )}
+
+              {activeTab === 'leads' && (
+                <motion.div 
+                  key="leads"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="space-y-8"
+                >
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
+                    <div className="flex items-center gap-8 text-left">
+                      <div>
+                        <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-2">Leads de <span className="text-imposing-gold">Entrada</span></h2>
+                        <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Captura Proativa de Visitantes</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[800px]">
+                      <thead>
+                        <tr className="bg-white/[0.02] border-b border-white/10">
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Nome Visitante</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">WhatsApp</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Data Captura</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {leads.map((l, idx) => (
+                          <motion.tr 
+                            key={l.id} 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group"
+                          >
+                            <td className="p-6">
+                              <p className="text-sm font-black text-white group-hover:text-imposing-gold transition-colors">{l.nome}</p>
+                            </td>
+                            <td className="p-6">
+                              <div className="flex items-center gap-3 text-white/70">
+                                <MessageCircle className="w-3.5 h-3.5 text-green-500" />
+                                <span className="text-xs font-mono font-bold">{l.whatsapp}</span>
+                              </div>
+                            </td>
+                            <td className="p-6">
+                              <span className="text-[10px] text-white/30 uppercase font-black tracking-widest">
+                                {new Date(l.created_at).toLocaleDateString('pt-BR')} às {new Date(l.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </td>
+                            <td className="p-6 text-right">
+                              <div className="flex justify-end gap-3">
+                                <button 
+                                  onClick={() => {
+                                    const cleaned = l.whatsapp.replace(/\D/g, '');
+                                    window.open(`https://api.whatsapp.com/send?phone=${cleaned}&text=${encodeURIComponent(`Olá ${l.nome.split(' ')[0]}, vi que você visitou meu site. Como posso te ajudar hoje?`)}`, "_blank");
+                                  }} 
+                                  className="p-2.5 bg-white/5 hover:bg-green-500/20 hover:text-green-500 rounded-xl transition-all" 
+                                  title="Iniciar Conversa"
+                                >
+                                  <Send className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => deleteLead(l.id)} className="p-2.5 bg-white/5 hover:bg-red-500 hover:text-white rounded-xl transition-all" title="Excluir Lead">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))}
+                        {leads.length === 0 && (
+                          <tr>
+                            <td colSpan={4} className="p-32 text-center text-white/10 uppercase font-black text-xs tracking-widest">Nenhum lead capturado ainda</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
           )}
         </div>
@@ -3384,6 +3481,33 @@ const App = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(() => localStorage.getItem('admin_portal_open') === 'true');
   const [showExitPopup, setShowExitPopup] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);
+  const [showEntryPopup, setShowEntryPopup] = useState(false);
+  const [leadData, setLeadData] = useState({ nome: "", whatsapp: "" });
+  const [isSavingLead, setIsSavingLead] = useState(false);
+
+  useEffect(() => {
+    const hasFilled = localStorage.getItem('entry_popup_filled');
+    if (!hasFilled) {
+      const timer = setTimeout(() => setShowEntryPopup(true), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leadData.nome || !leadData.whatsapp) return;
+    
+    setIsSavingLead(true);
+    try {
+      await supabase.from('leads_entrada').insert([leadData]);
+      localStorage.setItem('entry_popup_filled', 'true');
+      setShowEntryPopup(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSavingLead(false);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('admin_portal_open', isAdminOpen.toString());
@@ -3418,6 +3542,86 @@ const App = () => {
 
   return (
     <div className="relative min-h-screen selection:bg-imposing-gold selection:text-imposing-black pb-28 md:pb-0">
+      <AnimatePresence>
+        {showEntryPopup && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 backdrop-blur-2xl bg-black/85"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 40 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 40 }}
+              className="max-w-md w-full bg-imposing-black border border-imposing-gold/30 p-10 md:p-12 rounded-[2.5rem] shadow-[0_0_80px_rgba(212,175,55,0.2)] relative"
+            >
+              <button 
+                onClick={() => {
+                  setShowEntryPopup(false);
+                  localStorage.setItem('entry_popup_filled', 'true'); // Only show once
+                }}
+                className="absolute top-8 right-8 text-white/30 hover:text-imposing-gold transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              <div className="text-center mb-10">
+                <div className="w-16 h-16 bg-imposing-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-imposing-gold/20">
+                  <User className="w-8 h-8 text-imposing-gold" />
+                </div>
+                <h3 className="text-2xl font-black uppercase text-white tracking-tighter leading-none mb-3">Bem-vindo(a)</h3>
+                <p className="text-[10px] text-white/40 uppercase font-black tracking-widest leading-relaxed">
+                  Para uma experiência personalizada, <br /> identifique-se rapidamente:
+                </p>
+              </div>
+              
+              <form onSubmit={handleLeadSubmit} className="space-y-6">
+                <div className="space-y-2 text-left">
+                  <label className="text-[9px] uppercase tracking-widest font-black text-imposing-gold/60 ml-1">Nome Completo</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                    <input 
+                      type="text" 
+                      required
+                      value={leadData.nome}
+                      onChange={(e) => setLeadData({...leadData, nome: e.target.value})}
+                      className="w-full bg-white/[0.03] border border-white/10 px-12 py-4 rounded-xl text-white text-sm focus:border-imposing-gold outline-none transition-all" 
+                      placeholder="Seu nome..." 
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2 text-left">
+                  <label className="text-[9px] uppercase tracking-widest font-black text-imposing-gold/60 ml-1">WhatsApp</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                    <input 
+                      type="text" 
+                      required
+                      value={leadData.whatsapp}
+                      onChange={(e) => setLeadData({...leadData, whatsapp: e.target.value})}
+                      className="w-full bg-white/[0.03] border border-white/10 px-12 py-4 rounded-xl text-white text-sm focus:border-imposing-gold outline-none transition-all" 
+                      placeholder="(DD) 99999-9999" 
+                    />
+                  </div>
+                </div>
+                
+                <button 
+                  disabled={isSavingLead}
+                  type="submit"
+                  className="w-full py-5 bg-imposing-gold text-imposing-black rounded-xl font-black uppercase tracking-[0.4em] text-[10px] shadow-xl hover:bg-white transition-all transform active:scale-95 flex items-center justify-center gap-3 mt-4"
+                >
+                  {isSavingLead ? <RotateCcw className="w-4 h-4 animate-spin" /> : "Confirmar e Entrar"}
+                </button>
+                
+                <p className="text-[8px] text-white/10 uppercase font-black tracking-widest text-center mt-6 italic">Ambiente seguro e ético</p>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {showExitPopup && (
           <motion.div 
