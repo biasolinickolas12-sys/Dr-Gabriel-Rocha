@@ -1738,7 +1738,8 @@ const TriagemDigital = () => {
                     <h3 className="text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter text-white">Tudo pronto,<br/> <span className="text-imposing-gold font-serif lowercase italic font-light italic">{answers.nome.split(' ')[0]}</span></h3>
                     
                     <p className="text-gray-400 text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">
-                      Sua pré-triagem foi concluída com sucesso. Agora, clique no botão abaixo para encaminhar seus dados com prioridade para o WhatsApp dGabriel Rocha e iniciar seu agendamento.
+                      Sua pré-triagem foi concluída com sucesso. <br />
+                      <span className="text-imposing-gold font-bold">IMPORTANTE:</span> Você precisa clicar no botão abaixo para enviar seus dados e <span className="text-white font-bold">confirmar sua consulta</span> via WhatsApp agora mesmo.
                     </p>
                     
                     <motion.button 
