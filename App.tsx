@@ -42,7 +42,8 @@ import {
   Target,
   FileText,
   NotebookPen,
-  Download
+  Download,
+  Save
 } from "lucide-react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Float, PerspectiveCamera, Environment, Icosahedron, MeshDistortMaterial, Sphere } from "@react-three/drei";
@@ -2201,6 +2202,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   // Filtro de Faturamento
   const [revenueFilterMonth, setRevenueFilterMonth] = useState<number | 'all'>('all');
   const [revenueFilterYear, setRevenueFilterYear] = useState(new Date().getFullYear());
+  const [showRevenueHistory, setShowRevenueHistory] = useState(false);
 
   const fetchLeads = async () => {
     try {
@@ -2705,73 +2707,123 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       </div>
                       <div className="flex justify-between items-start mb-6">
                         <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Faturamento {revenueFilterMonth === 'all' ? 'Acumulado' : 'Mensal'}</p>
-                        <div className="flex items-center gap-2 bg-white/5 border border-white/10 p-1.5 rounded-xl">
-                          <select 
-                            value={revenueFilterMonth} 
-                            onChange={(e) => setRevenueFilterMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                            className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none cursor-pointer"
-                          >
-                            <option value="all" className="bg-imposing-black">Total</option>
-                            {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => (
-                              <option key={m} value={i} className="bg-imposing-black">{m}</option>
-                            ))}
-                          </select>
-                          {revenueFilterMonth !== 'all' && (
-                            <>
-                              <div className="w-px h-2 bg-white/10" />
-                              <input 
-                                type="number"
-                                value={revenueFilterYear}
-                                onChange={(e) => setRevenueFilterYear(Number(e.target.value))}
-                                className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none w-10 text-center focus:text-imposing-gold transition-colors"
-                              />
-                            </>
-                          )}
+                        <div className="flex items-center gap-2">
+                           <div className="flex items-center gap-2 bg-white/5 border border-white/10 p-1.5 rounded-xl">
+                              <select 
+                                value={revenueFilterMonth} 
+                                onChange={(e) => setRevenueFilterMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                                className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none cursor-pointer"
+                              >
+                                <option value="all" className="bg-imposing-black">Total</option>
+                                {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => (
+                                  <option key={m} value={i} className="bg-imposing-black">{m}</option>
+                                ))}
+                              </select>
+                              {revenueFilterMonth !== 'all' && (
+                                <>
+                                  <div className="w-px h-2 bg-white/10" />
+                                  <input 
+                                    type="number"
+                                    value={revenueFilterYear}
+                                    onChange={(e) => setRevenueFilterYear(Number(e.target.value))}
+                                    className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none w-10 text-center focus:text-imposing-gold transition-colors"
+                                  />
+                                </>
+                              )}
+                           </div>
+                           <button 
+                             onClick={() => setShowRevenueHistory(!showRevenueHistory)}
+                             className={`p-2 rounded-lg border transition-all ${showRevenueHistory ? 'bg-imposing-gold border-imposing-gold text-imposing-black' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'}`}
+                             title="Ver Histórico Mensal"
+                           >
+                             <ClipboardList className="w-4 h-4" />
+                           </button>
                         </div>
                       </div>
-                      <div className="flex items-end gap-2">
-                        <span className="text-lg font-black text-green-500/50 mb-1.5">R$</span>
-                        <p className="text-6xl font-black text-white leading-none">
-                          {patients.reduce((acc, p) => {
-                            let total = 0;
-                            
-                            // Pagamento da sessão principal
-                            if (p.status_pagamento && p.horario) {
-                              const pDate = new Date(p.horario);
-                              const matchMonth = revenueFilterMonth === 'all' || pDate.getMonth() === revenueFilterMonth;
-                              const matchYear = revenueFilterMonth === 'all' || pDate.getFullYear() === revenueFilterYear;
-                              if (matchMonth && matchYear) {
-                                total += Number(p.valor_sessao || 0);
-                              }
-                            } else if (p.status_pagamento && p.periodicidade === 'Fixo') {
-                              if (revenueFilterMonth === 'all') {
-                                total += Number(p.valor_sessao || 0);
-                              }
-                            }
 
-                            // Histórico de pagamentos
-                            if (p.historico_pagamentos) {
-                              try {
-                                const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
-                                if (Array.isArray(history)) {
-                                  total += history.reduce((s: number, pay: any) => {
-                                    const payDate = new Date(pay.data);
-                                    const matchMonth = revenueFilterMonth === 'all' || payDate.getMonth() === revenueFilterMonth;
-                                    const matchYear = revenueFilterMonth === 'all' || payDate.getFullYear() === revenueFilterYear;
-                                    // Consideramos pago se status for true ou se não houver campo status (legado)
-                                    const isPaid = pay.status === undefined ? true : pay.status === true;
-                                    return s + (matchMonth && matchYear && isPaid ? Number(pay.valor || 0) : 0);
-                                  }, 0);
+                      <AnimatePresence mode="wait">
+                        {!showRevenueHistory ? (
+                          <motion.div 
+                            key="total"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                          >
+                            <div className="flex items-end gap-2">
+                              <span className="text-lg font-black text-green-500/50 mb-1.5">R$</span>
+                              <p className="text-6xl font-black text-white leading-none">
+                                {patients.reduce((acc, p) => {
+                                  let total = 0;
+                                  if (p.status_pagamento && p.horario) {
+                                    const pDate = new Date(p.horario);
+                                    const matchMonth = revenueFilterMonth === 'all' || pDate.getMonth() === revenueFilterMonth;
+                                    const matchYear = revenueFilterMonth === 'all' || pDate.getFullYear() === revenueFilterYear;
+                                    if (matchMonth && matchYear) total += Number(p.valor_sessao || 0);
+                                  } else if (p.status_pagamento && p.periodicidade === 'Fixo' && revenueFilterMonth === 'all') {
+                                    total += Number(p.valor_sessao || 0);
+                                  }
+                                  if (p.historico_pagamentos) {
+                                    try {
+                                      const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
+                                      if (Array.isArray(history)) {
+                                        total += history.reduce((s: number, pay: any) => {
+                                          const payDate = new Date(pay.data);
+                                          const matchMonth = revenueFilterMonth === 'all' || payDate.getMonth() === revenueFilterMonth;
+                                          const matchYear = revenueFilterMonth === 'all' || payDate.getFullYear() === revenueFilterYear;
+                                          const isPaid = pay.status === undefined ? true : pay.status === true;
+                                          return s + (matchMonth && matchYear && isPaid ? Number(pay.valor || 0) : 0);
+                                        }, 0);
+                                      }
+                                    } catch (e) {}
+                                  }
+                                  return acc + total;
+                                }, 0).toLocaleString('pt-BR')}
+                              </p>
+                            </div>
+                            <div className="mt-8 flex items-center gap-2 text-[9px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 w-fit px-3 py-1.5 rounded-full border border-green-500/20">
+                              {revenueFilterMonth === 'all' ? 'Total líquido recebido' : `Recebido em ${['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][revenueFilterMonth as number]} ${revenueFilterYear}`}
+                            </div>
+                          </motion.div>
+                        ) : (
+                          <motion.div 
+                            key="history"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-3 max-h-[150px] overflow-y-auto custom-scrollbar pr-2"
+                          >
+                            {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => {
+                              const monthTotal = patients.reduce((acc, p) => {
+                                let total = 0;
+                                if (p.status_pagamento && p.horario) {
+                                  const pDate = new Date(p.horario);
+                                  if (pDate.getMonth() === i && pDate.getFullYear() === revenueFilterYear) total += Number(p.valor_sessao || 0);
                                 }
-                              } catch (e) {}
-                            }
-                            return acc + total;
-                          }, 0).toLocaleString('pt-BR')}
-                        </p>
-                      </div>
-                      <div className="mt-8 flex items-center gap-2 text-[9px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 w-fit px-3 py-1.5 rounded-full border border-green-500/20">
-                        {revenueFilterMonth === 'all' ? 'Total líquido recebido' : `Recebido em ${['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][revenueFilterMonth as number]} ${revenueFilterYear}`}
-                      </div>
+                                if (p.historico_pagamentos) {
+                                  try {
+                                    const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
+                                    if (Array.isArray(history)) {
+                                      total += history.reduce((s: number, pay: any) => {
+                                        const payDate = new Date(pay.data);
+                                        const isPaid = pay.status === undefined ? true : pay.status === true;
+                                        return s + (payDate.getMonth() === i && payDate.getFullYear() === revenueFilterYear && isPaid ? Number(pay.valor || 0) : 0);
+                                      }, 0);
+                                    }
+                                  } catch (e) {}
+                                }
+                                return acc + total;
+                              }, 0);
+                              
+                              return (
+                                <div key={m} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                  <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">{m} {revenueFilterYear}</span>
+                                  <span className="text-xs font-black text-green-500">R$ {monthTotal.toLocaleString('pt-BR')}</span>
+                                </div>
+                              );
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
 
                     <motion.div whileHover={{ y: -10 }} className="bg-white/[0.02] border border-white/5 p-10 rounded-[2.5rem] relative group overflow-hidden shadow-2xl">
