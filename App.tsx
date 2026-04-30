@@ -2197,6 +2197,10 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   const [patients, setPatients] = useState<any[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'patients' | 'clientes_fixos' | 'agendamento' | 'leads'>('overview');
+  
+  // Filtro de Faturamento
+  const [revenueFilterMonth, setRevenueFilterMonth] = useState<number | 'all'>('all');
+  const [revenueFilterYear, setRevenueFilterYear] = useState(new Date().getFullYear());
 
   const fetchLeads = async () => {
     try {
@@ -2651,9 +2655,6 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-2">Painel de <span className="text-imposing-gold">Controle</span></h2>
                       <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Performance e Métricas Clínicas</p>
                     </div>
-                    <div className="flex gap-4">
-                       {/* Botão de Relatórios removido a pedido do usuário */}
-                    </div>
                   </div>
 
                   {/* Stat Cards Refined */}
@@ -2662,17 +2663,63 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
                          <ZapOff className="w-32 h-32 text-white" />
                       </div>
-                      <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/30 mb-6">Faturamento Acumulado</p>
+                      <div className="flex justify-between items-start mb-6">
+                        <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Faturamento {revenueFilterMonth === 'all' ? 'Acumulado' : 'Mensal'}</p>
+                        <div className="flex items-center gap-2 bg-white/5 border border-white/10 p-1.5 rounded-xl">
+                          <select 
+                            value={revenueFilterMonth} 
+                            onChange={(e) => setRevenueFilterMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                            className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none cursor-pointer"
+                          >
+                            <option value="all" className="bg-imposing-black">Total</option>
+                            {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => (
+                              <option key={m} value={i} className="bg-imposing-black">{m}</option>
+                            ))}
+                          </select>
+                          {revenueFilterMonth !== 'all' && (
+                            <>
+                              <div className="w-px h-2 bg-white/10" />
+                              <input 
+                                type="number"
+                                value={revenueFilterYear}
+                                onChange={(e) => setRevenueFilterYear(Number(e.target.value))}
+                                className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none w-10 text-center focus:text-imposing-gold transition-colors"
+                              />
+                            </>
+                          )}
+                        </div>
+                      </div>
                       <div className="flex items-end gap-2">
                         <span className="text-lg font-black text-green-500/50 mb-1.5">R$</span>
                         <p className="text-6xl font-black text-white leading-none">
                           {patients.reduce((acc, p) => {
-                            let total = p.status_pagamento ? Number(p.valor_sessao || 0) : 0;
+                            let total = 0;
+                            
+                            // Pagamento da sessão principal
+                            if (p.status_pagamento && p.horario) {
+                              const pDate = new Date(p.horario);
+                              const matchMonth = revenueFilterMonth === 'all' || pDate.getMonth() === revenueFilterMonth;
+                              const matchYear = revenueFilterMonth === 'all' || pDate.getFullYear() === revenueFilterYear;
+                              if (matchMonth && matchYear) {
+                                total += Number(p.valor_sessao || 0);
+                              }
+                            } else if (p.status_pagamento && p.periodicidade === 'Fixo') {
+                              if (revenueFilterMonth === 'all') {
+                                total += Number(p.valor_sessao || 0);
+                              }
+                            }
+
+                            // Histórico de pagamentos
                             if (p.historico_pagamentos) {
                               try {
                                 const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
                                 if (Array.isArray(history)) {
-                                  total += history.reduce((s: number, pay: any) => s + Number(pay.valor || 0), 0);
+                                  total += history.reduce((s: number, pay: any) => {
+                                    const payDate = new Date(pay.data);
+                                    const matchMonth = revenueFilterMonth === 'all' || payDate.getMonth() === revenueFilterMonth;
+                                    const matchYear = revenueFilterMonth === 'all' || payDate.getFullYear() === revenueFilterYear;
+                                    return s + (matchMonth && matchYear ? Number(pay.valor || 0) : 0);
+                                  }, 0);
                                 }
                               } catch (e) {}
                             }
@@ -2681,7 +2728,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                         </p>
                       </div>
                       <div className="mt-8 flex items-center gap-2 text-[9px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 w-fit px-3 py-1.5 rounded-full border border-green-500/20">
-                        Total líquido recebido
+                        {revenueFilterMonth === 'all' ? 'Total líquido recebido' : `Recebido em ${['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][revenueFilterMonth as number]} ${revenueFilterYear}`}
                       </div>
                     </motion.div>
 
