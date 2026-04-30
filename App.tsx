@@ -2781,8 +2781,9 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                   const val = e.target.value.replace(/\D/g, '');
                                   if (val.length <= 4) setRevenueFilterYear(val === '' ? 0 : Number(val));
                                 }}
-                                className="bg-transparent text-xs font-black text-imposing-gold uppercase border-none outline-none w-16 text-center transition-colors placeholder:text-imposing-gold/20"
+                                className="bg-white/5 hover:bg-white/10 focus:bg-white/20 text-sm font-black text-imposing-gold border border-white/5 focus:border-imposing-gold/50 outline-none w-20 py-1 rounded-xl text-center transition-all placeholder:text-imposing-gold/20 relative z-10"
                                 placeholder="Ano"
+                                title="Clique para digitar o ano"
                               />
                            </div>
                            <button 
