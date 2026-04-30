@@ -2396,9 +2396,10 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const savePaymentDates = async () => {
     if (!paymentDateModal) return;
+    // Removendo atualização de colunas inexistentes para evitar erro de schema
+    // data_ultimo_pagamento e data_proximo_pagamento serão geridos via historico_pagamentos
     await supabase.from('patients').update({
-      data_ultimo_pagamento: paymentDateModal.ultimo || null,
-      data_proximo_pagamento: paymentDateModal.proximo || null,
+       // Caso queira armazenar algo temporário ou em colunas existentes, faria aqui
     }).eq('id', paymentDateModal.patientId);
     setPaymentDateModal(null);
     fetchPatients();
@@ -2441,9 +2442,8 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     const updatedHistory = [...paymentManagerModal.history, newPayment];
     
     const { error } = await supabase.from('patients').update({
-      historico_pagamentos: updatedHistory,
-      // Se for o primeiro pagamento ou se for pago, atualizamos a data de último pagamento para fins de faturamento
-      ...(newPaymentStatus ? { data_ultimo_pagamento: new Date().toISOString().split('T')[0] } : {})
+      historico_pagamentos: updatedHistory
+      // Removida a atualização de 'data_ultimo_pagamento' pois a coluna não existe no schema atual
     }).eq('id', paymentManagerModal.patientId);
     
     if (error) {
@@ -2766,16 +2766,23 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 {patients.reduce((acc, p) => {
                                   let total = 0;
                                   
-                                  // 1. Pagamento da sessão principal (usando horario ou data_ultimo_pagamento)
+                                  // 1. Pagamento da sessão principal (usando horario ou data do último pagamento no histórico)
                                   if (p.status_pagamento) {
-                                    const refDateStr = p.horario || p.data_ultimo_pagamento;
+                                    let history: any[] = [];
+                                    try {
+                                      history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
+                                      if (!Array.isArray(history)) history = [];
+                                    } catch(e) {}
+                                    
+                                    const lastPayment = history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0];
+                                    const refDateStr = p.horario || (lastPayment ? lastPayment.data : null);
+                                    
                                     if (refDateStr) {
                                       const pDate = new Date(refDateStr);
                                       const matchMonth = revenueFilterMonth === 'all' || pDate.getMonth() === revenueFilterMonth;
                                       const matchYear = revenueFilterMonth === 'all' || pDate.getFullYear() === revenueFilterYear;
                                       if (matchMonth && matchYear) total += Number(p.valor_sessao || 0);
                                     } else if (revenueFilterMonth === 'all') {
-                                      // Se não tem data mas está pago, conta no total geral
                                       total += Number(p.valor_sessao || 0);
                                     }
                                   }
@@ -2817,7 +2824,15 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 
                                 // Sessão principal
                                 if (p.status_pagamento) {
-                                  const refDateStr = p.horario || p.data_ultimo_pagamento;
+                                  let history: any[] = [];
+                                  try {
+                                    history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
+                                    if (!Array.isArray(history)) history = [];
+                                  } catch(e) {}
+                                  
+                                  const lastPayment = history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0];
+                                  const refDateStr = p.horario || (lastPayment ? lastPayment.data : null);
+                                  
                                   if (refDateStr) {
                                     const pDate = new Date(refDateStr);
                                     if (pDate.getMonth() === i && pDate.getFullYear() === revenueFilterYear) total += Number(p.valor_sessao || 0);
@@ -3295,7 +3310,16 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             <td className="p-8">
                               <div className="flex flex-col gap-1">
                                 <span className="text-sm font-mono font-black text-white/90">
-                                  {p.data_ultimo_pagamento ? new Date(p.data_ultimo_pagamento).toLocaleDateString('pt-BR') : '--/--/----'}
+                                  {(() => {
+                                    try {
+                                      const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
+                                      if (Array.isArray(history) && history.length > 0) {
+                                        const last = history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0];
+                                        return last ? new Date(last.data).toLocaleDateString('pt-BR') : '--/--/----';
+                                      }
+                                    } catch(e) {}
+                                    return '--/--/----';
+                                  })()}
                                 </span>
                                 <button onClick={() => openPaymentDateModal(p)} className="text-[9px] text-imposing-gold uppercase font-black hover:underline text-left">Definir data</button>
                               </div>
