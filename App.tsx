@@ -2452,14 +2452,23 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     fetchPatients();
   };
 
-  const toggleMainPayment = async () => {
+  const setPaymentStatus = async (status: boolean) => {
     if (!paymentManagerModal) return;
-    const newStatus = !paymentManagerModal.statusPagamento;
     await supabase.from('patients').update({
-      status_pagamento: newStatus
+      status_pagamento: status
     }).eq('id', paymentManagerModal.patientId);
     
-    setPaymentManagerModal({ ...paymentManagerModal, statusPagamento: newStatus });
+    setPaymentManagerModal({ ...paymentManagerModal, statusPagamento: status });
+    fetchPatients();
+  };
+
+  const updateSessionValue = async (valor: number) => {
+    if (!paymentManagerModal) return;
+    await supabase.from('patients').update({
+      valor_sessao: valor
+    }).eq('id', paymentManagerModal.patientId);
+    
+    setPaymentManagerModal({ ...paymentManagerModal, valorSessao: valor });
     fetchPatients();
   };
 
@@ -3692,17 +3701,39 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
                <div className="space-y-8">
                  {/* Pagamento Principal */}
-                 <div className="bg-white/5 border border-white/5 p-6 rounded-3xl flex items-center justify-between group">
-                    <div>
-                      <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Pagamento da Sessão</p>
-                      <p className="text-2xl font-black text-white">R$ {paymentManagerModal.valorSessao.toLocaleString('pt-BR')}</p>
+                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Valor da Sessão</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl font-black text-white/40">R$</span>
+                          <input 
+                            type="number" 
+                            value={paymentManagerModal.valorSessao} 
+                            onChange={(e) => updateSessionValue(Number(e.target.value))}
+                            className="bg-transparent text-2xl font-black text-white border-b border-white/10 focus:border-imposing-gold outline-none w-32"
+                          />
+                        </div>
+                      </div>
+                      <div className={`p-4 rounded-2xl border ${paymentManagerModal.statusPagamento ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                        {paymentManagerModal.statusPagamento ? <Check className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                      </div>
                     </div>
-                    <button 
-                      onClick={toggleMainPayment}
-                      className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] transition-all border ${paymentManagerModal.statusPagamento ? 'bg-green-500 border-green-500 text-black' : 'bg-white/5 border-white/10 text-white/40 hover:border-green-500/30'}`}
-                    >
-                      {paymentManagerModal.statusPagamento ? 'Recebido' : 'Pendente'}
-                    </button>
+
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => setPaymentStatus(true)}
+                        className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${paymentManagerModal.statusPagamento ? 'bg-green-500 border-green-500 text-black shadow-lg shadow-green-500/20' : 'bg-white/5 border-white/10 text-white/40 hover:border-green-500/30'}`}
+                      >
+                        Pago / Recebido
+                      </button>
+                      <button 
+                        onClick={() => setPaymentStatus(false)}
+                        className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${!paymentManagerModal.statusPagamento ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-white/5 border-white/10 text-white/40 hover:border-red-500/30'}`}
+                      >
+                        Pendente
+                      </button>
+                    </div>
                  </div>
 
                  {/* Histórico e Adicionar */}
