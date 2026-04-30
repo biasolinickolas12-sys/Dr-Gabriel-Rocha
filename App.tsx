@@ -2761,35 +2761,31 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       <div className="flex justify-between items-start mb-6">
                         <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Faturamento {revenueFilterMonth === 'all' ? 'Acumulado' : 'Mensal'}</p>
                         <div className="flex items-center gap-2">
-                           <div className="flex items-center gap-2 bg-white/5 border border-white/10 p-1.5 rounded-xl">
+                           <div className="flex items-center gap-2 bg-white/10 border border-white/20 p-2 rounded-2xl shadow-inner">
                               <select 
                                 value={revenueFilterMonth} 
                                 onChange={(e) => setRevenueFilterMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                                className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none cursor-pointer"
+                                className="bg-transparent text-[10px] font-black text-white uppercase border-none outline-none cursor-pointer px-2"
                               >
-                                <option value="all" className="bg-imposing-black">Total</option>
-                                {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => (
+                                <option value="all" className="bg-imposing-black">Total Acumulado</option>
+                                {['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'].map((m, i) => (
                                   <option key={m} value={i} className="bg-imposing-black">{m}</option>
                                 ))}
                               </select>
-                              {revenueFilterMonth !== 'all' && (
-                                <>
-                                  <div className="w-px h-2 bg-white/10" />
-                                  <input 
-                                    type="number"
-                                    value={revenueFilterYear}
-                                    onChange={(e) => setRevenueFilterYear(Number(e.target.value))}
-                                    className="bg-transparent text-[8px] font-black text-white uppercase border-none outline-none w-10 text-center focus:text-imposing-gold transition-colors"
-                                  />
-                                </>
-                              )}
+                              <div className="w-px h-4 bg-white/10" />
+                              <input 
+                                type="number"
+                                value={revenueFilterYear}
+                                onChange={(e) => setRevenueFilterYear(Number(e.target.value))}
+                                className="bg-transparent text-[10px] font-black text-white uppercase border-none outline-none w-14 text-center focus:text-imposing-gold transition-colors"
+                              />
                            </div>
                            <button 
                              onClick={() => setShowRevenueHistory(!showRevenueHistory)}
-                             className={`p-2 rounded-lg border transition-all ${showRevenueHistory ? 'bg-imposing-gold border-imposing-gold text-imposing-black' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'}`}
+                             className={`p-3 rounded-xl border transition-all ${showRevenueHistory ? 'bg-imposing-gold border-imposing-gold text-imposing-black shadow-[0_0_20px_rgba(212,175,55,0.3)]' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'}`}
                              title="Ver Histórico Mensal"
                            >
-                             <ClipboardList className="w-4 h-4" />
+                             <ClipboardList className="w-5 h-5" />
                            </button>
                         </div>
                       </div>
@@ -2808,15 +2804,16 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 {patients.reduce((acc, p) => {
                                   let total = 0;
                                   
-                                  // 1. Pagamento da sessão principal (usando horario ou data do último pagamento no histórico)
+                                  // 1. Pagamento da sessão principal
                                   if (p.status_pagamento) {
                                     let history: any[] = [];
-                                    try {
-                                      history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
-                                      if (!Array.isArray(history)) history = [];
-                                    } catch(e) {}
+                                    if (p.historico_pagamentos) {
+                                      try { history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos; } catch(e) {}
+                                    } else if (p.pauta_proxima && p.pauta_proxima.includes('[[[JSON_PAYMENTS]]]')) {
+                                      try { history = JSON.parse(p.pauta_proxima.split('[[[JSON_PAYMENTS]]]')[1]); } catch(e) {}
+                                    }
                                     
-                                    const lastPayment = history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0];
+                                    const lastPayment = Array.isArray(history) ? history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0] : null;
                                     const refDateStr = p.horario || (lastPayment ? lastPayment.data : null);
                                     
                                     if (refDateStr) {
@@ -2826,6 +2823,9 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                       if (matchMonth && matchYear) total += Number(p.valor_sessao || 0);
                                     } else if (revenueFilterMonth === 'all') {
                                       total += Number(p.valor_sessao || 0);
+                                    } else {
+                                      // Fallback para pacientes fixos sem data: se estiverem pagos, considerar o mês atual selecionado (como se tivessem pago este mês)
+                                      // ou apenas contar no total acumulado. Aqui optamos por contar no total acumulado.
                                     }
                                   }
 
