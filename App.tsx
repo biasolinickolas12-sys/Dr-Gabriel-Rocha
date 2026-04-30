@@ -67,6 +67,7 @@ const Reveal = ({ children, delay = 0, x = 0, y = 20, duration = 0.8 }: any) => 
   const isMobile = useIsMobile();
   return (
     <motion.div
+      className="relative z-10"
       initial={{ opacity: 0, x, y: isMobile ? 10 : y }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, margin: isMobile ? "-20px" : "-100px" }}
@@ -571,7 +572,7 @@ const Hero = () => {
       <div className="absolute inset-0 bg-imposing-black" />
 
       {/* Photo Layer */}
-      <motion.div style={{ y, opacity }} className="absolute inset-0 z-[1] pointer-events-none flex justify-center">
+      <motion.div style={{ y, opacity }} className="absolute inset-0 z-0 pointer-events-none flex justify-center">
         
         {/* Pattern of Architectural Golden Stripes BEHIND the doctor (z-0) */}
         {/* Stripe 1: Far left subtle line */}
@@ -1833,7 +1834,7 @@ const FAQ = () => {
 const Footer = () => (
   <footer id="contato" className="bg-white py-40 border-t border-black/5 relative overflow-hidden text-imposing-black">
     {/* Intense Gold Decorative Stripes */}
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
       <div className="absolute top-0 left-[10%] w-px h-full bg-imposing-gold/40" />
       <div className="absolute top-0 left-[11%] w-1.5 h-full bg-imposing-gold/60" />
       <div className="absolute top-0 left-[12%] w-[2px] h-full bg-imposing-gold/20" />
@@ -1915,7 +1916,7 @@ const Footer = () => (
               <motion.a 
                 whileHover={{ scale: 1.02, x: 10 }}
                 href="mailto:gabrielrocha.psicologia@gmail.com" 
-                className="text-4xl md:text-5xl font-black hover:text-imposing-gold transition-colors mb-4 block origin-left tracking-tighter break-all md:break-normal"
+                className="text-[clamp(1.1rem,6vw,2.5rem)] md:text-5xl font-black hover:text-imposing-gold transition-colors mb-4 block origin-left tracking-tighter md:break-normal break-words"
               >
                 gabrielrocha.psicologia@gmail.com
               </motion.a>
@@ -1951,10 +1952,7 @@ const Footer = () => (
             </div>
           </Reveal>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-[10px] uppercase tracking-[0.3em] font-black text-imposing-black/40">
-            <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all">Privacidade</motion.a>
-            <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all">Termos</motion.a>
-            <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all">Cookies</motion.a>
+          <div className="flex gap-8 text-[10px] uppercase tracking-[0.3em] font-black text-imposing-black/40">
             <motion.a whileHover={{ x: 5, color: "#D4AF37" }} href="#" className="transition-all text-imposing-black/20">CRP 03/34761</motion.a>
           </div>
         </div>
