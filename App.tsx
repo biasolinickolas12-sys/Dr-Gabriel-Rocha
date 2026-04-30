@@ -2407,14 +2407,21 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const [paymentManagerModal, setPaymentManagerModal] = useState<{ patientId: number; nome: string; history: any[] } | null>(null);
 
-  const openPaymentManager = (p: any) => {
+   const openPaymentManager = (p: any) => {
     let history = [];
     if (p.historico_pagamentos) {
       try {
         history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
-        if (!Array.isArray(history)) history = [];
+      } catch (e) {}
+    } else if (p.pauta_proxima && p.pauta_proxima.includes('[[[JSON_PAYMENTS]]]')) {
+      try {
+        const parts = p.pauta_proxima.split('[[[JSON_PAYMENTS]]]');
+        history = JSON.parse(parts[1]);
       } catch (e) {}
     }
+
+    if (!Array.isArray(history)) history = [];
+
     setPaymentManagerModal({
       patientId: p.id,
       nome: p.nome,
@@ -2441,19 +2448,34 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     
     const updatedHistory = [...paymentManagerModal.history, newPayment];
     
-    const { error } = await supabase.from('patients').update({
-      historico_pagamentos: updatedHistory,
-      status_pagamento: true // Marcar como pago o registro principal ao adicionar um pagamento extra
-    }).eq('id', paymentManagerModal.patientId);
-    
-    if (error) {
-      alert("Erro ao salvar pagamento: " + error.message);
+    try {
+      // Tenta salvar na coluna correta
+      const { error } = await supabase.from('patients').update({
+        historico_pagamentos: updatedHistory,
+        status_pagamento: true
+      }).eq('id', paymentManagerModal.patientId);
+      
+      if (error && error.message.includes('column "historico_pagamentos" does not exist')) {
+        // Se a coluna não existir, usa o fallback na pauta_proxima
+        const patient = patients.find(p => p.id === paymentManagerModal.patientId);
+        const cleanPauta = (patient?.pauta_proxima || "").split('[[[JSON_PAYMENTS]]]')[0].trim();
+        const fallbackContent = `${cleanPauta}\n\n[[[JSON_PAYMENTS]]]${JSON.stringify(updatedHistory)}`;
+        
+        await supabase.from('patients').update({
+          pauta_proxima: fallbackContent,
+          status_pagamento: true
+        }).eq('id', paymentManagerModal.patientId);
+      } else if (error) {
+        throw error;
+      }
+    } catch (e: any) {
+      alert("Erro ao salvar: " + (e.message || "Erro desconhecido"));
       return;
     }
     
     setPaymentManagerModal({ ...paymentManagerModal, history: updatedHistory });
     setNewPaymentValue(0);
-    await fetchPatients(); // Forçar atualização de todos os dados
+    await fetchPatients();
   };
 
   const updateExtraPaymentValue = async (paymentId: number, valor: number) => {
@@ -2807,20 +2829,27 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     }
                                   }
 
-                                  // 2. Histórico de pagamentos
+                                  // 2. Histórico de pagamentos (com fallback)
+                                  let history: any[] = [];
                                   if (p.historico_pagamentos) {
                                     try {
-                                      const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
-                                      if (Array.isArray(history)) {
-                                        total += history.reduce((s: number, pay: any) => {
-                                          const payDate = new Date(pay.data);
-                                          const matchMonth = revenueFilterMonth === 'all' || payDate.getMonth() === revenueFilterMonth;
-                                          const matchYear = revenueFilterMonth === 'all' || payDate.getFullYear() === revenueFilterYear;
-                                          const isPaid = pay.status === undefined ? true : pay.status === true;
-                                          return s + (matchMonth && matchYear && isPaid ? Number(pay.valor || 0) : 0);
-                                        }, 0);
-                                      }
+                                      history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
                                     } catch (e) {}
+                                  } else if (p.pauta_proxima && p.pauta_proxima.includes('[[[JSON_PAYMENTS]]]')) {
+                                    try {
+                                      const parts = p.pauta_proxima.split('[[[JSON_PAYMENTS]]]');
+                                      history = JSON.parse(parts[1]);
+                                    } catch (e) {}
+                                  }
+
+                                  if (Array.isArray(history)) {
+                                    total += history.reduce((s: number, pay: any) => {
+                                      const payDate = new Date(pay.data);
+                                      const matchMonth = revenueFilterMonth === 'all' || payDate.getMonth() === revenueFilterMonth;
+                                      const matchYear = revenueFilterMonth === 'all' || payDate.getFullYear() === revenueFilterYear;
+                                      const isPaid = pay.status === undefined ? true : pay.status === true;
+                                      return s + (matchMonth && matchYear && isPaid ? Number(pay.valor || 0) : 0);
+                                    }, 0);
                                   }
                                   return acc + total;
                                 }, 0).toLocaleString('pt-BR')}
