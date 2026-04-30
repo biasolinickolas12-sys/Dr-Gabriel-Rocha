@@ -2502,7 +2502,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
               { id: 'overview', label: 'Visão Geral', icon: <LayoutDashboard className="w-5 h-5" /> },
               { id: 'patients', label: 'Pacientes', icon: <User className="w-5 h-5" /> },
               { id: 'leads', label: 'Leads Entrada', icon: <Phone className="w-5 h-5" /> },
-              { id: 'clientes_fixos', label: 'Clientes Fixos', icon: <Calendar className="w-5 h-5" /> },
+              { id: 'clientes_fixos', label: 'Pacientes Fixos', icon: <Calendar className="w-5 h-5" /> },
               { id: 'agendamento', label: 'Novo Registro', icon: <Plus className="w-5 h-5" /> },
             ].map((item) => (
               <button
@@ -2986,7 +2986,6 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Documentação</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Agendamento</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Última Sessão</th>
-                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-center">Pagamento</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Status</th>
                           <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-right">Ações</th>
                         </tr>
@@ -3058,17 +3057,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                  <span className="text-[9px] text-white/10 uppercase font-black tracking-widest">Nenhuma</span>
                                )}
                              </td>
-                             <td className="p-8 text-center">
-                                <button 
-                                  onClick={() => openPaymentManager(p)}
-                                  className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto transition-all border group relative ${p.status_pagamento ? 'bg-green-500 border-green-500 text-black shadow-[0_10px_25px_rgba(34,197,94,0.3)]' : 'bg-white/5 border-white/5 text-white/10 hover:border-green-500/30'}`}
-                                >
-                                   <Check className="w-7 h-7" />
-                                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-imposing-gold text-imposing-black rounded-full flex items-center justify-center text-[10px] font-black border-2 border-imposing-black scale-0 group-hover:scale-100 transition-all">
-                                     <Edit className="w-3 h-3" />
-                                   </div>
-                                </button>
-                             </td>
+
                             <td className="p-8">
                                <select 
                                   value={p.status}
@@ -3120,7 +3109,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                   <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
                     <div className="flex items-center gap-8">
                       <div>
-                        <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-2">Clientes <span className="text-imposing-gold">Fixos</span></h2>
+                        <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-2">Pacientes <span className="text-imposing-gold">Fixos</span></h2>
                         <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Gestão de Agendamentos Recorrentes</p>
                       </div>
                     </div>
@@ -3135,6 +3124,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                               <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Horário</th>
                               <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Último Pagamento</th>
                               <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Próximo Pagamento</th>
+                              <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-center">Financeiro</th>
                               <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-right">Ações</th>
                             </tr>
                           </thead>
@@ -3193,6 +3183,17 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 <button onClick={() => openPaymentDateModal(p)} className="text-[9px] text-imposing-gold uppercase font-black hover:underline text-left">Definir data</button>
                               </div>
                             </td>
+                            <td className="p-8 text-center">
+                                <button 
+                                  onClick={() => openPaymentManager(p)}
+                                  className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto transition-all border group relative ${p.status_pagamento ? 'bg-green-500 border-green-500 text-black shadow-[0_10px_25px_rgba(34,197,94,0.3)]' : 'bg-white/5 border-white/5 text-white/10 hover:border-green-500/30'}`}
+                                >
+                                   <Check className="w-7 h-7" />
+                                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-imposing-gold text-imposing-black rounded-full flex items-center justify-center text-[10px] font-black border-2 border-imposing-black scale-0 group-hover:scale-100 transition-all">
+                                     <Edit className="w-3 h-3" />
+                                   </div>
+                                </button>
+                            </td>
                             <td className="p-8 text-right">
                               <div className="flex justify-end items-center gap-3">
                                 <button onClick={() => handleWhatsApp(p)} className="p-4 bg-white/5 hover:bg-green-500/10 border border-white/5 hover:border-green-500/20 text-white/20 hover:text-green-500 rounded-2xl transition-all"><MessageCircle className="w-5 h-5" /></button>
@@ -3207,7 +3208,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             <td colSpan={4} className="p-32 text-center">
                               <div className="flex flex-col items-center gap-6 opacity-10">
                                 <Calendar className="w-20 h-20" />
-                                <p className="text-sm font-black uppercase tracking-[0.5em]">Nenhum cliente fixo registrado</p>
+                                <p className="text-sm font-black uppercase tracking-[0.5em]">Nenhum paciente fixo registrado</p>
                               </div>
                             </td>
                           </tr>
