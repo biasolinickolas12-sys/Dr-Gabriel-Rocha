@@ -2867,18 +2867,22 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             exit={{ opacity: 0, x: -20 }}
                             className="space-y-3 max-h-[200px] overflow-y-auto custom-scrollbar pr-2"
                           >
-                            {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => {
+                             {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((m, i) => {
                               const monthTotal = patients.reduce((acc, p) => {
                                 let total = 0;
                                 
+                                // 1. Pegando histórico com fallback
+                                let history: any[] = [];
+                                if (p.historico_pagamentos) {
+                                  try { history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos; } catch(e) {}
+                                } else if (p.pauta_proxima && p.pauta_proxima.includes('[[[JSON_PAYMENTS]]]')) {
+                                  try { history = JSON.parse(p.pauta_proxima.split('[[[JSON_PAYMENTS]]]')[1]); } catch(e) {}
+                                }
+
+                                if (!Array.isArray(history)) history = [];
+
                                 // Sessão principal
                                 if (p.status_pagamento) {
-                                  let history: any[] = [];
-                                  try {
-                                    history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
-                                    if (!Array.isArray(history)) history = [];
-                                  } catch(e) {}
-                                  
                                   const lastPayment = history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0];
                                   const refDateStr = p.horario || (lastPayment ? lastPayment.data : null);
                                   
@@ -2888,19 +2892,13 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                   }
                                 }
 
-                                // Histórico
-                                if (p.historico_pagamentos) {
-                                  try {
-                                    const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
-                                    if (Array.isArray(history)) {
-                                      total += history.reduce((s: number, pay: any) => {
-                                        const payDate = new Date(pay.data);
-                                        const isPaid = pay.status === undefined ? true : pay.status === true;
-                                        return s + (payDate.getMonth() === i && payDate.getFullYear() === revenueFilterYear && isPaid ? Number(pay.valor || 0) : 0);
-                                      }, 0);
-                                    }
-                                  } catch (e) {}
-                                }
+                                // Pagamentos extras no histórico
+                                total += history.reduce((s: number, pay: any) => {
+                                  const payDate = new Date(pay.data);
+                                  const isPaid = pay.status === undefined ? true : pay.status === true;
+                                  return s + (payDate.getMonth() === i && payDate.getFullYear() === revenueFilterYear && isPaid ? Number(pay.valor || 0) : 0);
+                                }, 0);
+                                
                                 return acc + total;
                               }, 0);
                               
