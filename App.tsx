@@ -902,10 +902,10 @@ const Bio = () => {
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-black/5 rounded-full blur-[100px] pointer-events-none translate-y-1/3 -translate-x-1/3" />
 
       {/* Pattern of Architectural Golden Stripes - BIO Section */}
-      <div className="absolute left-[5%] top-[-20%] bottom-[-20%] w-[1px] bg-imposing-gold/30 transform -skew-x-[25deg] pointer-events-none z-0" />
-      <div className="absolute left-[12%] top-[-20%] bottom-[-20%] w-[90px] bg-gradient-to-r from-imposing-gold/5 to-imposing-gold/10 transform -skew-x-[25deg] pointer-events-none z-0" />
-      <div className="absolute left-[18%] top-[-20%] bottom-[-20%] w-[4px] bg-imposing-gold/20 shadow-[0_0_15px_rgba(212,175,55,0.2)] transform -skew-x-[25deg] pointer-events-none z-0" />
-      <div className="absolute left-[19%] top-[-20%] bottom-[-20%] w-[2px] bg-imposing-gold/40 transform -skew-x-[25deg] pointer-events-none z-0" />
+      <div className="absolute left-[2%] top-[-20%] bottom-[-20%] w-[1px] bg-imposing-gold/30 transform -skew-x-[25deg] pointer-events-none z-0" />
+      <div className="absolute left-[4%] top-[-20%] bottom-[-20%] w-[90px] bg-gradient-to-r from-imposing-gold/5 to-imposing-gold/10 transform -skew-x-[25deg] pointer-events-none z-0" />
+      <div className="absolute left-[8%] top-[-20%] bottom-[-20%] w-[4px] bg-imposing-gold/20 shadow-[0_0_15px_rgba(212,175,55,0.2)] transform -skew-x-[25deg] pointer-events-none z-0" />
+      <div className="absolute left-[9%] top-[-20%] bottom-[-20%] w-[2px] bg-imposing-gold/40 transform -skew-x-[25deg] pointer-events-none z-0" />
       
       {/* Stripes running behind the text on the right side */}
       <div className="absolute right-[2%] top-[-20%] bottom-[-20%] w-[60px] bg-gradient-to-l from-imposing-gold/10 to-transparent border-r border-imposing-gold/20 transform -skew-x-[25deg] pointer-events-none z-0" />
@@ -1436,7 +1436,7 @@ const TriagemDigital = () => {
           <div className="absolute left-[4%] top-[-30%] bottom-[-30%] w-[100px] bg-black/[0.04] transform -skew-x-[25deg] border-x border-black/5 backdrop-blur-[1px]" />
           
           {/* Gold Main Stripe - Moved further left away from "digital" */}
-          <div className="absolute left-[10%] top-[-30%] bottom-[-30%] w-[12px] bg-imposing-gold shadow-[0_0_40px_rgba(212,175,55,0.5)] transform -skew-x-[25deg]" />
+          <div className="absolute left-[6%] top-[-30%] bottom-[-30%] w-[12px] bg-imposing-gold shadow-[0_0_40px_rgba(212,175,55,0.5)] transform -skew-x-[25deg]" />
           
           {/* Right Side Group */}
           {/* Wide Golden/Matte Band */}
@@ -1753,13 +1753,13 @@ const FAQ = () => {
       {/* Background architectural details and stripes */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {/* Slanted Stripes Inspired by Hero */}
-        <div className="absolute top-0 right-[15%] w-px h-full bg-imposing-gold/20 -rotate-12 transform origin-top" />
-        <div className="absolute top-0 right-[15.5%] w-1.5 h-full bg-imposing-gold/30 -rotate-12 transform origin-top shadow-[0_0_20px_rgba(212,175,55,0.2)]" />
-        <div className="absolute top-0 right-[16%] w-px h-full bg-white/5 -rotate-12 transform origin-top" />
+        <div className="absolute top-0 right-[5%] w-px h-full bg-imposing-gold/20 -rotate-12 transform origin-top" />
+        <div className="absolute top-0 right-[5.5%] w-1.5 h-full bg-imposing-gold/30 -rotate-12 transform origin-top shadow-[0_0_20px_rgba(212,175,55,0.2)]" />
+        <div className="absolute top-0 right-[6%] w-px h-full bg-white/5 -rotate-12 transform origin-top" />
         
-        <div className="absolute bottom-0 left-[20%] w-px h-full bg-imposing-gold/10 rotate-12 transform origin-bottom" />
-        <div className="absolute bottom-0 left-[21%] w-[2px] h-full bg-imposing-gold/20 rotate-12 transform origin-bottom" />
-        <div className="absolute bottom-0 left-[21.5%] w-px h-full bg-white/5 rotate-12 transform origin-bottom" />
+        <div className="absolute bottom-0 left-[5%] w-px h-full bg-imposing-gold/10 rotate-12 transform origin-bottom" />
+        <div className="absolute bottom-0 left-[6%] w-[2px] h-full bg-imposing-gold/20 rotate-12 transform origin-bottom" />
+        <div className="absolute bottom-0 left-[6.5%] w-px h-full bg-white/5 rotate-12 transform origin-bottom" />
 
         {/* Wide Decorative Diagonal Band */}
         <div className="absolute top-0 right-[30%] w-[100px] h-[150%] bg-imposing-gold/[0.03] -rotate-[15deg] transform origin-top border-x border-imposing-gold/5" />
@@ -1835,9 +1835,9 @@ const Footer = () => (
   <footer id="contato" className="bg-white py-40 border-t border-black/5 relative overflow-hidden text-imposing-black">
     {/* Intense Gold Decorative Stripes */}
     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-      <div className="absolute top-0 left-[10%] w-px h-full bg-imposing-gold/40" />
-      <div className="absolute top-0 left-[11%] w-1.5 h-full bg-imposing-gold/60" />
-      <div className="absolute top-0 left-[12%] w-[2px] h-full bg-imposing-gold/20" />
+      <div className="absolute top-0 left-[4%] w-px h-full bg-imposing-gold/40" />
+      <div className="absolute top-0 left-[5%] w-1.5 h-full bg-imposing-gold/60" />
+      <div className="absolute top-0 left-[6%] w-[2px] h-full bg-imposing-gold/20" />
       
       <div className="absolute top-0 right-[5%] w-32 h-full bg-imposing-gold/[0.03] -skew-x-12" />
       <div className="absolute top-0 right-[15%] w-px h-full bg-imposing-gold/30 -skew-x-12" />
