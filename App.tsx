@@ -2402,9 +2402,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     fetchPatients();
   };
 
-  // Modal de pagamento extra (Pacientes)
-  // Modal de gerenciamento de pagamentos
-  const [paymentManagerModal, setPaymentManagerModal] = useState<{ patientId: number; nome: string; valorSessao: number; statusPagamento: boolean; history: any[] } | null>(null);
+  const [paymentManagerModal, setPaymentManagerModal] = useState<{ patientId: number; nome: string; history: any[] } | null>(null);
 
   const openPaymentManager = (p: any) => {
     let history = [];
@@ -2417,19 +2415,22 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     setPaymentManagerModal({
       patientId: p.id,
       nome: p.nome,
-      valorSessao: p.valor_sessao || 0,
-      statusPagamento: p.status_pagamento,
       history: history
     });
+    setNewPaymentValue(p.valor_sessao || 0);
+    setNewPaymentStatus(true);
   };
 
-   const addNewPayment = async (valor: number) => {
-    if (!paymentManagerModal) return;
+  const [newPaymentValue, setNewPaymentValue] = useState<number>(0);
+  const [newPaymentStatus, setNewPaymentStatus] = useState<boolean>(true);
+
+   const addNewPayment = async () => {
+    if (!paymentManagerModal || newPaymentValue <= 0) return;
     const newPayment = {
-      valor,
+      valor: newPaymentValue,
       data: new Date().toISOString(),
       id: Date.now(),
-      status: true // Iniciamos como Pago por padrão ao adicionar manualmente
+      status: newPaymentStatus
     };
     const updatedHistory = [...paymentManagerModal.history, newPayment];
     
@@ -2438,6 +2439,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     }).eq('id', paymentManagerModal.patientId);
     
     setPaymentManagerModal({ ...paymentManagerModal, history: updatedHistory });
+    setNewPaymentValue(0);
     fetchPatients();
   };
 
@@ -3731,103 +3733,81 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                </div>
 
                <div className="space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 pb-6">
-                 {/* Pagamento Principal */}
-                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl space-y-6 relative group">
+                 {/* Formulário de Novo Pagamento */}
+                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl space-y-6 relative group shadow-2xl shadow-imposing-gold/5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Pagamento da Sessão</p>
+                        <p className="text-[9px] uppercase tracking-widest font-black text-imposing-gold mb-1">Novo Pagamento</p>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-white/40">R$</span>
                           <input 
                             type="number" 
-                            value={paymentManagerModal.valorSessao} 
-                            onChange={(e) => updateSessionValue(Number(e.target.value))}
-                            className="bg-transparent text-2xl font-black text-white border-b border-white/10 focus:border-imposing-gold outline-none w-32"
+                            value={newPaymentValue} 
+                            onChange={(e) => setNewPaymentValue(Number(e.target.value))}
+                            className="bg-transparent text-3xl font-black text-white border-b border-white/10 focus:border-imposing-gold outline-none w-32 transition-all"
+                            placeholder="0"
                           />
                         </div>
                       </div>
-                      <div className={`p-4 rounded-2xl border ${paymentManagerModal.statusPagamento ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
-                        {paymentManagerModal.statusPagamento ? <Check className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                      <div className={`p-4 rounded-2xl border transition-all ${newPaymentStatus ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                        {newPaymentStatus ? <Check className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
                       </div>
                     </div>
 
                     <div className="flex gap-3">
                       <button 
-                        onClick={() => setPaymentStatus(true)}
-                        className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${paymentManagerModal.statusPagamento ? 'bg-green-500 border-green-500 text-black shadow-lg shadow-green-500/20' : 'bg-white/5 border-white/10 text-white/40 hover:border-green-500/30'}`}
+                        onClick={() => setNewPaymentStatus(true)}
+                        className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${newPaymentStatus ? 'bg-green-500 border-green-500 text-black shadow-lg shadow-green-500/20' : 'bg-white/5 border-white/10 text-white/40 hover:border-green-500/30'}`}
                       >
                         Pago / Recebido
                       </button>
                       <button 
-                        onClick={() => setPaymentStatus(false)}
-                        className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${!paymentManagerModal.statusPagamento ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-white/5 border-white/10 text-white/40 hover:border-red-500/30'}`}
+                        onClick={() => setNewPaymentStatus(false)}
+                        className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${!newPaymentStatus ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-white/5 border-white/10 text-white/40 hover:border-red-500/30'}`}
                       >
                         Pendente
                       </button>
                     </div>
+
+                    <button 
+                      onClick={addNewPayment}
+                      disabled={newPaymentValue <= 0}
+                      className="w-full py-5 bg-imposing-gold text-imposing-black rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-white disabled:opacity-20 disabled:hover:bg-imposing-gold transition-all shadow-xl shadow-imposing-gold/10 flex items-center justify-center gap-3"
+                    >
+                      <Save className="w-4 h-4" /> Salvar Pagamento
+                    </button>
                  </div>
 
-                 {/* Lista de Pagamentos Extras */}
-                 {paymentManagerModal.history.map((pay: any) => (
-                    <div key={pay.id} className="bg-white/5 border border-white/5 p-8 rounded-3xl space-y-6 relative group">
-                       <button 
-                         onClick={() => removePaymentFromHistory(pay.id)}
-                         className="absolute top-4 right-4 p-2 text-white/10 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                       >
-                         <Trash2 className="w-4 h-4" />
-                       </button>
-                       <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Novo Pagamento · {new Date(pay.data).toLocaleDateString('pt-BR')}</p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl font-black text-white/40">R$</span>
-                              <input 
-                                type="number" 
-                                value={pay.valor} 
-                                onChange={(e) => updateExtraPaymentValue(pay.id, Number(e.target.value))}
-                                className="bg-transparent text-2xl font-black text-white border-b border-white/10 focus:border-imposing-gold outline-none w-32"
-                              />
-                            </div>
-                          </div>
-                          <div className={`p-4 rounded-2xl border ${pay.status !== false ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
-                            {pay.status !== false ? <Check className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
-                          </div>
-                       </div>
-                       <div className="flex gap-3">
-                          <button 
-                            onClick={() => setExtraPaymentStatus(pay.id, true)}
-                            className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${pay.status !== false ? 'bg-green-500 border-green-500 text-black shadow-lg shadow-green-500/20' : 'bg-white/5 border-white/10 text-white/40'}`}
-                          >
-                            Pago
-                          </button>
-                          <button 
-                            onClick={() => setExtraPaymentStatus(pay.id, false)}
-                            className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all border ${pay.status === false ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-white/5 border-white/10 text-white/40'}`}
-                          >
-                            Pendente
-                          </button>
-                       </div>
-                    </div>
-                 ))}
-
-                 <button 
-                    onClick={() => {
-                      const val = prompt("Digite o valor do novo pagamento:");
-                      if (val) addNewPayment(Number(val));
-                    }}
-                    className="w-full py-6 border-2 border-dashed border-white/5 rounded-3xl text-white/20 hover:text-imposing-gold hover:border-imposing-gold/30 hover:bg-imposing-gold/5 transition-all flex items-center justify-center gap-3 group"
-                 >
-                    <Plus className="w-5 h-5 group-hover:scale-125 transition-transform" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Adicionar Novo Pagamento</span>
-                 </button>
+                 {/* Lista de Pagamentos Registrados */}
+                 {paymentManagerModal.history.length > 0 && (
+                   <div className="space-y-4 pt-4">
+                     <p className="text-[10px] uppercase tracking-widest font-black text-white/20 px-2">Pagamentos Registrados</p>
+                     {paymentManagerModal.history.map((pay: any) => (
+                        <div key={pay.id} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl flex items-center justify-between group hover:bg-white/[0.04] transition-all">
+                           <div className="flex items-center gap-6">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${pay.status !== false ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                                 {pay.status !== false ? <Check className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                              </div>
+                              <div>
+                                <p className="text-lg font-black text-white">R$ {Number(pay.valor).toLocaleString('pt-BR')}</p>
+                                <p className="text-[9px] text-white/20 font-bold uppercase">{new Date(pay.data).toLocaleDateString('pt-BR')}</p>
+                              </div>
+                           </div>
+                           <button 
+                             onClick={() => removePaymentFromHistory(pay.id)}
+                             className="p-3 text-white/10 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                           >
+                             <Trash2 className="w-4 h-4" />
+                           </button>
+                        </div>
+                     ))}
+                   </div>
+                 )}
 
                  <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                     <p className="text-[11px] font-black uppercase text-white/40">Total Geral Recebido:</p>
                     <p className="text-2xl font-black text-green-500">
-                      R$ {(
-                        (paymentManagerModal.statusPagamento ? paymentManagerModal.valorSessao : 0) + 
-                        paymentManagerModal.history.reduce((s: number, p: any) => s + (p.status !== false ? Number(p.valor) : 0), 0)
-                      ).toLocaleString('pt-BR')}
+                      R$ {paymentManagerModal.history.reduce((s: number, p: any) => s + (p.status !== false ? Number(p.valor) : 0), 0).toLocaleString('pt-BR')}
                     </p>
                  </div>
                </div>
