@@ -2097,7 +2097,7 @@ const FloatingCTA = () => {
   );
 };
 
-const MobileBottomNav = () => {
+const MobileBottomNav = ({ onExitClick }: { onExitClick: () => void }) => {
   const isMobile = useIsMobile();
   if (!isMobile) return null;
 
@@ -2114,7 +2114,7 @@ const MobileBottomNav = () => {
       animate={{ y: 0 }}
       className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 pt-3 md:hidden"
     >
-      <div className="bg-imposing-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl flex justify-between items-center px-6 py-3 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:ring-imposing-gold/50">
+      <div className="bg-imposing-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl flex justify-between items-center px-4 py-3 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:ring-imposing-gold/50">
         {navItems.map((item) => (
           <a 
             key={item.name} 
@@ -2131,6 +2131,17 @@ const MobileBottomNav = () => {
             <span className="text-[9px] font-black uppercase tracking-wider">{item.name}</span>
           </a>
         ))}
+
+        {/* Botão Sair do site */}
+        <button
+          onClick={onExitClick}
+          className="flex flex-col items-center gap-1 transition-all active:scale-95 group text-white/30 hover:text-red-400"
+        >
+          <div className="p-1 rounded-lg transition-colors group-hover:bg-red-500/10">
+            <X className="w-5 h-5" />
+          </div>
+          <span className="text-[9px] font-black uppercase tracking-wider">Sair</span>
+        </button>
       </div>
     </motion.div>
   );
@@ -3681,7 +3692,7 @@ const App = () => {
         {isAdminOpen && <AdminPortal isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />}
       </AnimatePresence>
       <Navbar onAdminClick={() => setIsAdminOpen(true)} />
-      <MobileBottomNav />
+      <MobileBottomNav onExitClick={() => { setShowExitPopup(true); setHasShownPopup(true); }} />
       <FloatingCTA />
       <Hero />
       <PainIdentification />
