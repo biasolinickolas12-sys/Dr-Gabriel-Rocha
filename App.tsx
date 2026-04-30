@@ -2376,6 +2376,42 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     fetchPatients();
   };
 
+  // Modal de datas de pagamento (Clientes Fixos)
+  const [paymentDateModal, setPaymentDateModal] = useState<{ patientId: number; nome: string; ultimo: string; proximo: string } | null>(null);
+
+  const openPaymentDateModal = (p: any) => {
+    setPaymentDateModal({
+      patientId: p.id,
+      nome: p.nome,
+      ultimo: p.data_ultimo_pagamento ? p.data_ultimo_pagamento.split('T')[0] : '',
+      proximo: p.data_proximo_pagamento ? p.data_proximo_pagamento.split('T')[0] : '',
+    });
+  };
+
+  const savePaymentDates = async () => {
+    if (!paymentDateModal) return;
+    await supabase.from('patients').update({
+      data_ultimo_pagamento: paymentDateModal.ultimo || null,
+      data_proximo_pagamento: paymentDateModal.proximo || null,
+    }).eq('id', paymentDateModal.patientId);
+    setPaymentDateModal(null);
+    fetchPatients();
+  };
+
+  // Modal de pagamento extra (Pacientes)
+  const [extraPaymentModal, setExtraPaymentModal] = useState<{ patientId: number; nome: string; data: string } | null>(null);
+
+  const addExtraPayment = async () => {
+    if (!extraPaymentModal) return;
+    // Registra data_ultimo_pagamento e mantém status_pagamento como true
+    await supabase.from('patients').update({
+      status_pagamento: true,
+      data_ultimo_pagamento: extraPaymentModal.data || new Date().toISOString().split('T')[0],
+    }).eq('id', extraPaymentModal.patientId);
+    setExtraPaymentModal(null);
+    fetchPatients();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -2904,14 +2940,22 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                  <span className="text-[9px] text-white/10 uppercase font-black tracking-widest">Nenhuma</span>
                                )}
                              </td>
-                            <td className="p-8 text-center">
-                               <button 
-                                 onClick={() => togglePayment(p.id, p.status_pagamento)}
-                                 className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto transition-all border ${p.status_pagamento ? 'bg-green-500 border-green-500 text-black shadow-[0_10px_25px_rgba(34,197,94,0.3)]' : 'bg-white/5 border-white/5 text-white/10 hover:border-green-500/30'}`}
-                               >
-                                  <Check className="w-7 h-7" />
-                               </button>
-                            </td>
+                             <td className="p-8 text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                   <button 
+                                     onClick={() => togglePayment(p.id, p.status_pagamento)}
+                                     className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto transition-all border ${p.status_pagamento ? 'bg-green-500 border-green-500 text-black shadow-[0_10px_25px_rgba(34,197,94,0.3)]' : 'bg-white/5 border-white/5 text-white/10 hover:border-green-500/30'}`}
+                                   >
+                                      <Check className="w-7 h-7" />
+                                   </button>
+                                   <button 
+                                     onClick={() => setExtraPaymentModal({ patientId: p.id, nome: p.nome, data: new Date().toISOString().split('T')[0] })}
+                                     className="text-[8px] font-black uppercase text-white/20 hover:text-imposing-gold transition-colors tracking-widest"
+                                   >
+                                     + Pagamento Extra
+                                   </button>
+                                </div>
+                             </td>
                             <td className="p-8">
                                <select 
                                   value={p.status}
@@ -2971,14 +3015,16 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
                   <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[800px]">
-                      <thead>
-                        <tr className="bg-white/5 border-b border-white/5">
-                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Identificação</th>
-                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Dia da Semana</th>
-                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Horário</th>
-                          <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-right">Ações</th>
-                        </tr>
-                      </thead>
+                          <thead>
+                            <tr className="bg-white/5 border-b border-white/5">
+                              <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Identificação</th>
+                              <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Dia da Semana</th>
+                              <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Horário</th>
+                              <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Último Pagamento</th>
+                              <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30">Próximo Pagamento</th>
+                              <th className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-white/30 text-right">Ações</th>
+                            </tr>
+                          </thead>
                       <tbody className="divide-y divide-white/[0.03]">
                         {patients.filter(p => p.periodicidade === 'Fixo').map((p, idx) => {
                           let diaTexto = "Desconhecido";
@@ -3017,6 +3063,22 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             </td>
                             <td className="p-8">
                               <span className="text-sm font-mono font-black text-white/90">{horaTexto}</span>
+                            </td>
+                            <td className="p-8">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-mono font-black text-white/90">
+                                  {p.data_ultimo_pagamento ? new Date(p.data_ultimo_pagamento).toLocaleDateString('pt-BR') : '--/--/----'}
+                                </span>
+                                <button onClick={() => openPaymentDateModal(p)} className="text-[9px] text-imposing-gold uppercase font-black hover:underline text-left">Definir data</button>
+                              </div>
+                            </td>
+                            <td className="p-8">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-mono font-black text-white/90">
+                                  {p.data_proximo_pagamento ? new Date(p.data_proximo_pagamento).toLocaleDateString('pt-BR') : '--/--/----'}
+                                </span>
+                                <button onClick={() => openPaymentDateModal(p)} className="text-[9px] text-imposing-gold uppercase font-black hover:underline text-left">Definir data</button>
+                              </div>
                             </td>
                             <td className="p-8 text-right">
                               <div className="flex justify-end items-center gap-3">
@@ -3495,6 +3557,71 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       </div>
                     );
                   })}
+               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Datas de Pagamento (Fixo) */}
+      <AnimatePresence>
+        {paymentDateModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-imposing-black border border-white/10 p-12 rounded-[2.5rem] max-w-md w-full shadow-2xl">
+               <h4 className="text-white text-lg font-black uppercase tracking-widest mb-2 text-center">Datas de Pagamento</h4>
+               <p className="text-[10px] text-white/30 uppercase font-black tracking-widest mb-8 text-center">{paymentDateModal.nome}</p>
+               
+               <div className="space-y-6 mb-8">
+                 <div className="space-y-2">
+                   <label className="text-[9px] uppercase tracking-widest font-black text-imposing-gold ml-1">Último Pagamento</label>
+                   <input 
+                     type="date" 
+                     value={paymentDateModal.ultimo} 
+                     onChange={(e) => setPaymentDateModal({...paymentDateModal, ultimo: e.target.value})}
+                     className="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-imposing-gold transition-colors"
+                   />
+                 </div>
+                 <div className="space-y-2">
+                   <label className="text-[9px] uppercase tracking-widest font-black text-imposing-gold ml-1">Próximo Pagamento</label>
+                   <input 
+                     type="date" 
+                     value={paymentDateModal.proximo} 
+                     onChange={(e) => setPaymentDateModal({...paymentDateModal, proximo: e.target.value})}
+                     className="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-imposing-gold transition-colors"
+                   />
+                 </div>
+               </div>
+
+               <div className="flex gap-4">
+                  <button onClick={() => setPaymentDateModal(null)} className="flex-1 py-4 bg-white/5 text-white/40 font-black uppercase text-[10px] rounded-xl hover:bg-white/10 transition-all">Cancelar</button>
+                  <button onClick={savePaymentDates} className="flex-1 py-4 bg-imposing-gold text-imposing-black font-black uppercase text-[10px] rounded-xl hover:bg-white transition-all">Salvar</button>
+               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Pagamento Extra */}
+      <AnimatePresence>
+        {extraPaymentModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-imposing-black border border-white/10 p-12 rounded-[2.5rem] max-w-md w-full shadow-2xl text-center">
+               <h4 className="text-white text-lg font-black uppercase tracking-widest mb-2">Adicionar Pagamento</h4>
+               <p className="text-[10px] text-white/30 uppercase font-black tracking-widest mb-8">{extraPaymentModal.nome}</p>
+               
+               <div className="mb-8 space-y-2 text-left">
+                 <label className="text-[9px] uppercase tracking-widest font-black text-imposing-gold ml-1">Data do Pagamento</label>
+                 <input 
+                   type="date" 
+                   value={extraPaymentModal.data} 
+                   onChange={(e) => setExtraPaymentModal({...extraPaymentModal, data: e.target.value})}
+                   className="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-imposing-gold transition-colors"
+                 />
+               </div>
+
+               <div className="flex gap-4">
+                  <button onClick={() => setExtraPaymentModal(null)} className="flex-1 py-4 bg-white/5 text-white/40 font-black uppercase text-[10px] rounded-xl hover:bg-white/10 transition-all">Cancelar</button>
+                  <button onClick={addExtraPayment} className="flex-1 py-4 bg-green-500 text-black font-black uppercase text-[10px] rounded-xl hover:bg-white transition-all shadow-[0_10px_20px_rgba(34,197,94,0.2)]">Confirmar</button>
                </div>
             </motion.div>
           </motion.div>
