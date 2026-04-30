@@ -2774,10 +2774,15 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                               </select>
                               <div className="w-px h-4 bg-white/10" />
                               <input 
-                                type="number"
-                                value={revenueFilterYear}
-                                onChange={(e) => setRevenueFilterYear(Number(e.target.value))}
-                                className="bg-transparent text-[10px] font-black text-imposing-gold uppercase border-none outline-none w-14 text-center transition-colors"
+                                type="text"
+                                inputMode="numeric"
+                                value={revenueFilterYear === 0 ? '' : revenueFilterYear}
+                                onChange={(e) => {
+                                  const val = e.target.value.replace(/\D/g, '');
+                                  if (val.length <= 4) setRevenueFilterYear(val === '' ? 0 : Number(val));
+                                }}
+                                className="bg-transparent text-xs font-black text-imposing-gold uppercase border-none outline-none w-16 text-center transition-colors placeholder:text-imposing-gold/20"
+                                placeholder="Ano"
                               />
                            </div>
                            <button 
@@ -2979,14 +2984,18 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             </select>
                             <div className="w-px h-4 bg-white/10" />
                             <input 
-                              type="number"
-                              value={viewDate.getFullYear()}
+                              type="text"
+                              inputMode="numeric"
+                              value={viewDate.getFullYear() === 0 ? '' : viewDate.getFullYear()}
                               onChange={(e) => {
-                                const newDate = new Date(viewDate);
-                                newDate.setFullYear(Number(e.target.value));
-                                setViewDate(newDate);
+                                const val = e.target.value.replace(/\D/g, '');
+                                if (val.length <= 4) {
+                                  const newDate = new Date(viewDate);
+                                  newDate.setFullYear(val === '' ? 0 : Number(val));
+                                  setViewDate(newDate);
+                                }
                               }}
-                              className="bg-transparent text-[10px] font-black text-imposing-gold uppercase border-none outline-none p-2 w-16 text-center transition-colors"
+                              className="bg-transparent text-xs font-black text-imposing-gold uppercase border-none outline-none p-2 w-16 text-center transition-colors"
                             />
                           </div>
                        </div>
@@ -3130,10 +3139,14 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                          </select>
                          <div className="w-px h-4 bg-white/10" />
                          <input 
-                           type="number"
-                           value={filterYear} 
-                           onChange={(e) => setFilterYear(Number(e.target.value))}
-                           className="bg-transparent text-[10px] font-black text-imposing-gold uppercase border-none outline-none p-2 w-16 text-center transition-colors"
+                           type="text"
+                           inputMode="numeric"
+                           value={filterYear === 0 ? '' : filterYear} 
+                           onChange={(e) => {
+                             const val = e.target.value.replace(/\D/g, '');
+                             if (val.length <= 4) setFilterYear(val === '' ? 0 : Number(val));
+                           }}
+                           className="bg-transparent text-xs font-black text-imposing-gold uppercase border-none outline-none p-2 w-16 text-center transition-colors"
                            placeholder="Ano"
                          />
                       </div>
