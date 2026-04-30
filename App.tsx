@@ -2804,7 +2804,6 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 {patients.reduce((acc, p) => {
                                   let total = 0;
                                   
-                                  // 1. Pagamento da sessão principal
                                   if (p.status_pagamento) {
                                     let history: any[] = [];
                                     if (p.historico_pagamentos) {
@@ -2814,18 +2813,13 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     }
                                     
                                     const lastPayment = Array.isArray(history) ? history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0] : null;
-                                    const refDateStr = p.horario || (lastPayment ? lastPayment.data : null);
+                                    const refDateStr = p.horario || (lastPayment ? lastPayment.data : null) || p.created_at;
                                     
                                     if (refDateStr) {
                                       const pDate = new Date(refDateStr);
                                       const matchMonth = revenueFilterMonth === 'all' || pDate.getMonth() === revenueFilterMonth;
-                                      const matchYear = revenueFilterMonth === 'all' || pDate.getFullYear() === revenueFilterYear;
+                                      const matchYear = pDate.getFullYear() === revenueFilterYear;
                                       if (matchMonth && matchYear) total += Number(p.valor_sessao || 0);
-                                    } else if (revenueFilterMonth === 'all') {
-                                      total += Number(p.valor_sessao || 0);
-                                    } else {
-                                      // Fallback para pacientes fixos sem data: se estiverem pagos, considerar o mês atual selecionado (como se tivessem pago este mês)
-                                      // ou apenas contar no total acumulado. Aqui optamos por contar no total acumulado.
                                     }
                                   }
 
@@ -2846,7 +2840,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     total += history.reduce((s: number, pay: any) => {
                                       const payDate = new Date(pay.data);
                                       const matchMonth = revenueFilterMonth === 'all' || payDate.getMonth() === revenueFilterMonth;
-                                      const matchYear = revenueFilterMonth === 'all' || payDate.getFullYear() === revenueFilterYear;
+                                      const matchYear = payDate.getFullYear() === revenueFilterYear;
                                       const isPaid = pay.status === undefined ? true : pay.status === true;
                                       return s + (matchMonth && matchYear && isPaid ? Number(pay.valor || 0) : 0);
                                     }, 0);
@@ -2856,7 +2850,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                               </p>
                             </div>
                             <div className="mt-8 flex items-center gap-2 text-[9px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 w-fit px-3 py-1.5 rounded-full border border-green-500/20">
-                              {revenueFilterMonth === 'all' ? 'Total líquido recebido' : `Recebido em ${['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][revenueFilterMonth as number]} ${revenueFilterYear}`}
+                              {revenueFilterMonth === 'all' ? `Total recebido em ${revenueFilterYear}` : `Recebido em ${['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][revenueFilterMonth as number]} ${revenueFilterYear}`}
                             </div>
                           </motion.div>
                         ) : (
@@ -2884,7 +2878,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 // Sessão principal
                                 if (p.status_pagamento) {
                                   const lastPayment = history.filter((h:any) => h.status !== false).sort((a:any, b:any) => new Date(b.data).getTime() - new Date(a.data).getTime())[0];
-                                  const refDateStr = p.horario || (lastPayment ? lastPayment.data : null);
+                                  const refDateStr = p.horario || (lastPayment ? lastPayment.data : null) || p.created_at;
                                   
                                   if (refDateStr) {
                                     const pDate = new Date(refDateStr);
