@@ -41,7 +41,8 @@ import {
   X,
   Target,
   FileText,
-  NotebookPen
+  NotebookPen,
+  Download
 } from "lucide-react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Float, PerspectiveCamera, Environment, Icosahedron, MeshDistortMaterial, Sphere } from "@react-three/drei";
@@ -3054,9 +3055,32 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                     <div className="flex items-center gap-8 text-left">
                       <div>
                         <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-2">Leads de <span className="text-imposing-gold">Entrada</span></h2>
-                        <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Captura Proativa de Visitantes</p>
+                        <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Captura Proativa de Visitantes · {leads.length} registros</p>
                       </div>
                     </div>
+                    {leads.length > 0 && (
+                      <button
+                        onClick={() => {
+                          const BOM = "\uFEFF";
+                          const header = "Nome Completo;WhatsApp;Data de Captura";
+                          const rows = leads.map((l: any) =>
+                            `"${l.nome.replace(/"/g, '""')}";"${l.whatsapp.replace(/"/g, '""')}";"${new Date(l.created_at).toLocaleDateString('pt-BR')} ${new Date(l.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}"`
+                          );
+                          const csv = BOM + [header, ...rows].join("\n");
+                          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = `leads_entrada_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        className="flex items-center gap-3 px-6 py-4 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 text-green-400 hover:text-green-300 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all shadow-lg group"
+                      >
+                        <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                        Exportar Excel
+                      </button>
+                    )}
                   </div>
 
                   <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative overflow-x-auto">
