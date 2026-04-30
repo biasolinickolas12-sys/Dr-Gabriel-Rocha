@@ -2399,6 +2399,66 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   };
 
   // Modal de pagamento extra (Pacientes)
+  // Modal de gerenciamento de pagamentos
+  const [paymentManagerModal, setPaymentManagerModal] = useState<{ patientId: number; nome: string; valorSessao: number; statusPagamento: boolean; history: any[] } | null>(null);
+
+  const openPaymentManager = (p: any) => {
+    let history = [];
+    if (p.historico_pagamentos) {
+      try {
+        history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
+        if (!Array.isArray(history)) history = [];
+      } catch (e) {}
+    }
+    setPaymentManagerModal({
+      patientId: p.id,
+      nome: p.nome,
+      valorSessao: p.valor_sessao || 0,
+      statusPagamento: p.status_pagamento,
+      history: history
+    });
+  };
+
+  const addNewPayment = async (valor: number) => {
+    if (!paymentManagerModal) return;
+    const newPayment = {
+      valor,
+      data: new Date().toISOString().split('T')[0],
+      id: Date.now()
+    };
+    const updatedHistory = [...paymentManagerModal.history, newPayment];
+    
+    await supabase.from('patients').update({
+      historico_pagamentos: updatedHistory
+    }).eq('id', paymentManagerModal.patientId);
+    
+    setPaymentManagerModal({ ...paymentManagerModal, history: updatedHistory });
+    fetchPatients();
+  };
+
+  const removePaymentFromHistory = async (paymentId: number) => {
+    if (!paymentManagerModal) return;
+    const updatedHistory = paymentManagerModal.history.filter(p => p.id !== paymentId);
+    
+    await supabase.from('patients').update({
+      historico_pagamentos: updatedHistory
+    }).eq('id', paymentManagerModal.patientId);
+    
+    setPaymentManagerModal({ ...paymentManagerModal, history: updatedHistory });
+    fetchPatients();
+  };
+
+  const toggleMainPayment = async () => {
+    if (!paymentManagerModal) return;
+    const newStatus = !paymentManagerModal.statusPagamento;
+    await supabase.from('patients').update({
+      status_pagamento: newStatus
+    }).eq('id', paymentManagerModal.patientId);
+    
+    setPaymentManagerModal({ ...paymentManagerModal, statusPagamento: newStatus });
+    fetchPatients();
+  };
+
   const [extraPaymentModal, setExtraPaymentModal] = useState<{ patientId: number; nome: string; data: string } | null>(null);
 
   const addExtraPayment = async () => {
@@ -2606,7 +2666,18 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       <div className="flex items-end gap-2">
                         <span className="text-lg font-black text-green-500/50 mb-1.5">R$</span>
                         <p className="text-6xl font-black text-white leading-none">
-                          {patients.filter(p => p.status_pagamento).reduce((acc, p) => acc + Number(p.valor_sessao || 0), 0).toLocaleString('pt-BR')}
+                          {patients.reduce((acc, p) => {
+                            let total = p.status_pagamento ? Number(p.valor_sessao || 0) : 0;
+                            if (p.historico_pagamentos) {
+                              try {
+                                const history = typeof p.historico_pagamentos === 'string' ? JSON.parse(p.historico_pagamentos) : p.historico_pagamentos;
+                                if (Array.isArray(history)) {
+                                  total += history.reduce((s: number, pay: any) => s + Number(pay.valor || 0), 0);
+                                }
+                              } catch (e) {}
+                            }
+                            return acc + total;
+                          }, 0).toLocaleString('pt-BR')}
                         </p>
                       </div>
                       <div className="mt-8 flex items-center gap-2 text-[9px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 w-fit px-3 py-1.5 rounded-full border border-green-500/20">
@@ -2941,20 +3012,15 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                )}
                              </td>
                              <td className="p-8 text-center">
-                                <div className="flex flex-col items-center gap-2">
-                                   <button 
-                                     onClick={() => togglePayment(p.id, p.status_pagamento)}
-                                     className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto transition-all border ${p.status_pagamento ? 'bg-green-500 border-green-500 text-black shadow-[0_10px_25px_rgba(34,197,94,0.3)]' : 'bg-white/5 border-white/5 text-white/10 hover:border-green-500/30'}`}
-                                   >
-                                      <Check className="w-7 h-7" />
-                                   </button>
-                                   <button 
-                                     onClick={() => setExtraPaymentModal({ patientId: p.id, nome: p.nome, data: new Date().toISOString().split('T')[0] })}
-                                     className="text-[8px] font-black uppercase text-white/20 hover:text-imposing-gold transition-colors tracking-widest"
-                                   >
-                                     + Pagamento Extra
-                                   </button>
-                                </div>
+                                <button 
+                                  onClick={() => openPaymentManager(p)}
+                                  className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto transition-all border group relative ${p.status_pagamento ? 'bg-green-500 border-green-500 text-black shadow-[0_10px_25px_rgba(34,197,94,0.3)]' : 'bg-white/5 border-white/5 text-white/10 hover:border-green-500/30'}`}
+                                >
+                                   <Check className="w-7 h-7" />
+                                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-imposing-gold text-imposing-black rounded-full flex items-center justify-center text-[10px] font-black border-2 border-imposing-black scale-0 group-hover:scale-100 transition-all">
+                                     <Edit className="w-3 h-3" />
+                                   </div>
+                                </button>
                              </td>
                             <td className="p-8">
                                <select 
@@ -3557,6 +3623,81 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                       </div>
                     );
                   })}
+               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Gerenciamento de Pagamentos */}
+      <AnimatePresence>
+        {paymentManagerModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-imposing-black border border-white/10 p-10 rounded-[2.5rem] max-w-lg w-full shadow-2xl relative overflow-hidden">
+               <div className="absolute top-0 left-0 w-full h-[2px] bg-imposing-gold opacity-50" />
+               <button onClick={() => setPaymentManagerModal(null)} className="absolute top-8 right-8 p-3 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white/40"><X className="w-5 h-5" /></button>
+               
+               <div className="mb-10 text-center">
+                 <h4 className="text-white text-xl font-black uppercase tracking-widest mb-2">Gestão de Pagamentos</h4>
+                 <p className="text-[10px] text-imposing-gold uppercase font-black tracking-widest">{paymentManagerModal.nome}</p>
+               </div>
+
+               <div className="space-y-8">
+                 {/* Pagamento Principal */}
+                 <div className="bg-white/5 border border-white/5 p-6 rounded-3xl flex items-center justify-between group">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-widest font-black text-white/30 mb-1">Pagamento da Sessão</p>
+                      <p className="text-2xl font-black text-white">R$ {paymentManagerModal.valorSessao.toLocaleString('pt-BR')}</p>
+                    </div>
+                    <button 
+                      onClick={toggleMainPayment}
+                      className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] transition-all border ${paymentManagerModal.statusPagamento ? 'bg-green-500 border-green-500 text-black' : 'bg-white/5 border-white/10 text-white/40 hover:border-green-500/30'}`}
+                    >
+                      {paymentManagerModal.statusPagamento ? 'Recebido' : 'Pendente'}
+                    </button>
+                 </div>
+
+                 {/* Histórico e Adicionar */}
+                 <div className="space-y-4">
+                   <div className="flex items-center justify-between px-2">
+                     <p className="text-[10px] uppercase tracking-widest font-black text-white/20">Histórico Adicional</p>
+                     <button 
+                        onClick={() => {
+                          const val = prompt("Digite o valor do pagamento adicional (apenas números):");
+                          if (val) addNewPayment(Number(val));
+                        }}
+                        className="flex items-center gap-2 text-[10px] font-black uppercase text-imposing-gold hover:text-white transition-colors"
+                     >
+                       <Plus className="w-3 h-3" /> Adicionar Valor
+                     </button>
+                   </div>
+
+                   <div className="max-h-[200px] overflow-y-auto custom-scrollbar space-y-2">
+                     {paymentManagerModal.history.length > 0 ? paymentManagerModal.history.map((pay: any) => (
+                       <div key={pay.id} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex items-center justify-between">
+                         <div>
+                           <p className="text-sm font-black text-white">R$ {Number(pay.valor).toLocaleString('pt-BR')}</p>
+                           <p className="text-[9px] text-white/20 font-bold uppercase">{new Date(pay.data).toLocaleDateString('pt-BR')}</p>
+                         </div>
+                         <button onClick={() => removePaymentFromHistory(pay.id)} className="p-2 text-white/10 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                       </div>
+                     )) : (
+                       <div className="text-center py-8 opacity-20 border-2 border-dashed border-white/5 rounded-3xl">
+                         <p className="text-[10px] font-black uppercase tracking-widest">Nenhum registro extra</p>
+                       </div>
+                     )}
+                   </div>
+                 </div>
+
+                 <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                    <p className="text-[11px] font-black uppercase text-white/40">Total Geral Recebido:</p>
+                    <p className="text-2xl font-black text-green-500">
+                      R$ {(
+                        (paymentManagerModal.statusPagamento ? paymentManagerModal.valorSessao : 0) + 
+                        paymentManagerModal.history.reduce((s, p) => s + Number(p.valor), 0)
+                      ).toLocaleString('pt-BR')}
+                    </p>
+                 </div>
                </div>
             </motion.div>
           </motion.div>
