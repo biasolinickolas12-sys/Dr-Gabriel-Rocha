@@ -3486,13 +3486,8 @@ const App = () => {
   const [isSavingLead, setIsSavingLead] = useState(false);
 
   useEffect(() => {
-    const hasFilled = localStorage.getItem('entry_popup_v1');
-    console.log("Entry Popup Status:", hasFilled ? "Already filled" : "Pending...");
-    if (!hasFilled && !isAdminOpen) {
-      const timer = setTimeout(() => {
-        console.log("Showing Entry Popup...");
-        setShowEntryPopup(true);
-      }, 2500);
+    if (!isAdminOpen) {
+      const timer = setTimeout(() => setShowEntryPopup(true), 2500);
       return () => clearTimeout(timer);
     }
   }, [isAdminOpen]);
@@ -3504,7 +3499,6 @@ const App = () => {
     setIsSavingLead(true);
     try {
       await supabase.from('leads_entrada').insert([leadData]);
-      localStorage.setItem('entry_popup_v1', 'true');
       setShowEntryPopup(false);
     } catch (e) {
       console.error(e);
@@ -3561,10 +3555,7 @@ const App = () => {
               className="max-w-md w-full bg-imposing-black border border-imposing-gold/30 p-10 md:p-12 rounded-[2.5rem] shadow-[0_0_80px_rgba(212,175,55,0.2)] relative"
             >
               <button 
-                onClick={() => {
-                  setShowEntryPopup(false);
-                  localStorage.setItem('entry_popup_v1', 'true'); // Only show once
-                }}
+                onClick={() => setShowEntryPopup(false)}
                 className="absolute top-8 right-8 text-white/30 hover:text-imposing-gold transition-colors"
               >
                 <X className="w-6 h-6" />
