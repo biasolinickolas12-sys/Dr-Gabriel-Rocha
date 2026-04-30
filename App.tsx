@@ -2442,8 +2442,8 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     const updatedHistory = [...paymentManagerModal.history, newPayment];
     
     const { error } = await supabase.from('patients').update({
-      historico_pagamentos: updatedHistory
-      // Removida a atualização de 'data_ultimo_pagamento' pois a coluna não existe no schema atual
+      historico_pagamentos: updatedHistory,
+      status_pagamento: true // Marcar como pago o registro principal ao adicionar um pagamento extra
     }).eq('id', paymentManagerModal.patientId);
     
     if (error) {
@@ -2520,11 +2520,31 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const addExtraPayment = async () => {
     if (!extraPaymentModal) return;
-    // Registra data_ultimo_pagamento e mantém status_pagamento como true
+    
+    // Pegando histórico atual
+    const patient = patients.find(p => p.id === extraPaymentModal.patientId);
+    let history = [];
+    if (patient && patient.historico_pagamentos) {
+      try {
+        history = typeof patient.historico_pagamentos === 'string' ? JSON.parse(patient.historico_pagamentos) : patient.historico_pagamentos;
+        if (!Array.isArray(history)) history = [];
+      } catch(e) {}
+    }
+
+    const newPayment = {
+      valor: patient?.valor_sessao || 0,
+      data: extraPaymentModal.data || new Date().toISOString(),
+      id: Date.now(),
+      status: true
+    };
+    
+    const updatedHistory = [...history, newPayment];
+
     await supabase.from('patients').update({
       status_pagamento: true,
-      data_ultimo_pagamento: extraPaymentModal.data || new Date().toISOString().split('T')[0],
+      historico_pagamentos: updatedHistory
     }).eq('id', extraPaymentModal.patientId);
+
     setExtraPaymentModal(null);
     fetchPatients();
   };
@@ -3324,10 +3344,11 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 <button onClick={() => openPaymentDateModal(p)} className="text-[9px] text-imposing-gold uppercase font-black hover:underline text-left">Definir data</button>
                               </div>
                             </td>
-                            <td className="p-8">
+                             <td className="p-8">
                               <div className="flex flex-col gap-1">
                                 <span className="text-sm font-mono font-black text-white/90">
-                                  {p.data_proximo_pagamento ? new Date(p.data_proximo_pagamento).toLocaleDateString('pt-BR') : '--/--/----'}
+                                  {/* fallback para data inexistente no schema */}
+                                  --/--/----
                                 </span>
                                 <button onClick={() => openPaymentDateModal(p)} className="text-[9px] text-imposing-gold uppercase font-black hover:underline text-left">Definir data</button>
                               </div>
