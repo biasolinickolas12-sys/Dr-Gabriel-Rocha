@@ -3382,10 +3382,24 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
 const App = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(() => localStorage.getItem('admin_portal_open') === 'true');
+  const [showExitPopup, setShowExitPopup] = useState(false);
+  const [hasShownPopup, setHasShownPopup] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('admin_portal_open', isAdminOpen.toString());
   }, [isAdminOpen]);
+
+  useEffect(() => {
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0 && !hasShownPopup) {
+        setShowExitPopup(true);
+        setHasShownPopup(true);
+      }
+    };
+
+    document.addEventListener("mouseleave", handleMouseLeave);
+    return () => document.removeEventListener("mouseleave", handleMouseLeave);
+  }, [hasShownPopup]);
 
   useEffect(() => {
     // Prevent browser from restoring previous scroll position
@@ -3404,6 +3418,66 @@ const App = () => {
 
   return (
     <div className="relative min-h-screen selection:bg-imposing-gold selection:text-imposing-black pb-28 md:pb-0">
+      <AnimatePresence>
+        {showExitPopup && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[999] flex items-center justify-center p-6 backdrop-blur-xl bg-black/80"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="max-w-xl w-full bg-imposing-black border border-imposing-gold/30 p-10 md:p-16 rounded-[3rem] shadow-[0_0_100px_rgba(212,175,55,0.15)] relative overflow-hidden"
+            >
+              {/* Background Accents */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-imposing-gold/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-imposing-gold/10 rounded-full blur-2xl" />
+              
+              <div className="relative z-10 text-center text-white">
+                <div className="w-20 h-20 bg-imposing-gold/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-imposing-gold/20">
+                  <Brain className="w-10 h-10 text-imposing-gold" />
+                </div>
+                
+                <h3 className="text-3xl md:text-5xl font-black mb-6 uppercase tracking-tighter leading-tight">
+                  Sua jornada <br />
+                  <span className="text-imposing-gold font-serif lowercase italic font-light italic">não precisa parar aqui.</span>
+                </h3>
+                
+                <p className="text-gray-400 text-lg mb-10 font-light leading-relaxed">
+                  Antes de ir, que tal um diagnóstico preliminar? <br className="hidden md:block" /> 
+                  Leve apenas <span className="text-white font-bold">2 minutos</span> para mapear o que te incomoda e dar o primeiro passo para sua mudança.
+                </p>
+                
+                <div className="flex flex-col gap-4">
+                  <motion.a 
+                    href="#triagem"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowExitPopup(false)}
+                    className="w-full py-5 bg-imposing-gold text-imposing-black rounded-full font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-imposing-gold/20 hover:brightness-110 transition-all text-center"
+                  >
+                    Iniciar Triagem Gratuita
+                  </motion.a>
+                  
+                  <button 
+                    onClick={() => setShowExitPopup(false)}
+                    className="text-gray-500 hover:text-white font-mono text-[10px] uppercase tracking-widest transition-colors mt-2"
+                  >
+                    Não, obrigado. Prefiro sair.
+                  </button>
+                </div>
+              </div>
+
+              {/* Decorative side razor */}
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-imposing-gold/40 shadow-[0_0_15px_rgba(212,175,55,0.5)]" />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {isAdminOpen && <AdminPortal isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />}
       </AnimatePresence>
