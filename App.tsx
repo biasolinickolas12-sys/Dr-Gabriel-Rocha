@@ -1331,6 +1331,8 @@ const TriagemDigital = () => {
     objetivo: ""
   });
 
+  const [showOtherInput, setShowOtherInput] = useState(false);
+
   const analysisSteps = [
     "Sincronizando dados no ambiente seguro...",
     "Mapeando padrões de resposta...",
@@ -1352,7 +1354,7 @@ const TriagemDigital = () => {
       question: "O que mais te incomoda hoje?",
       description: "Selecione o sintoma ou situação predominante.",
       type: "options",
-      options: ["Ansiedade", "Luto (perda recente)", "Trauma do Passado", "Fim de Ciclo (Relacionamento/Trabalho)"]
+      options: ["Ansiedade", "Luto (perda recente)", "Trauma do Passado", "Fim de Ciclo (Relacionamento/Trabalho)", "Outro"]
     },
     {
       id: "tempo",
@@ -1371,6 +1373,7 @@ const TriagemDigital = () => {
   ];
 
   const handleNext = () => {
+    setShowOtherInput(false);
     if (step < questions.length - 1) {
       setStep(step + 1);
     } else {
@@ -1394,10 +1397,15 @@ const TriagemDigital = () => {
   };
 
   const handleBack = () => {
+    setShowOtherInput(false);
     if (step > 0) setStep(step - 1);
   };
 
   const handleOptionSelect = (option: string) => {
+    if (option === "Outro") {
+      setShowOtherInput(true);
+      return;
+    }
     setAnswers({ ...answers, [questions[step].id]: option });
     setTimeout(handleNext, 400);
   };
@@ -1643,33 +1651,66 @@ const TriagemDigital = () => {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {questions[step].options?.map((option, idx) => (
-                            <motion.button
-                              key={idx}
-                              whileHover={{ x: 10, backgroundColor: "rgba(212, 175, 55, 0.05)", borderColor: "rgba(212, 175, 55, 0.3)" }}
-                              onClick={() => handleOptionSelect(option)}
-                              className={`p-5 text-left border rounded-2xl transition-all flex justify-between items-center group/btn ${
-                                answers[questions[step].id as keyof typeof answers] === option 
-                                  ? "border-imposing-gold bg-imposing-gold/10 text-white" 
-                                  : "border-white/5 hover:border-white/20 text-gray-400 hover:text-white"
-                              }`}
-                            >
-                              <span className="text-sm md:text-base font-light">{option}</span>
-                              <div className={`w-2 h-2 rounded-full transition-all ${
-                                answers[questions[step].id as keyof typeof answers] === option 
-                                  ? "bg-imposing-gold scale-125 shadow-[0_0_10px_rgba(212,175,55,1)]" 
-                                  : "bg-white/10 group-hover/btn:bg-imposing-gold/50"
-                              }`} />
-                            </motion.button>
-                          ))}
-                          <div className="col-span-full mt-8 pt-8 border-t border-white/5">
-                            <button 
-                              onClick={handleBack} 
-                              className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-white transition-colors"
-                            >
-                              <ChevronLeft className="w-3 h-3" /> Voltar
-                            </button>
-                          </div>
+                          {!showOtherInput ? (
+                            <>
+                              {questions[step].options?.map((option, idx) => (
+                                <motion.button
+                                  key={idx}
+                                  whileHover={{ x: 10, backgroundColor: "rgba(212, 175, 55, 0.05)", borderColor: "rgba(212, 175, 55, 0.3)" }}
+                                  onClick={() => handleOptionSelect(option)}
+                                  className={`p-5 text-left border rounded-2xl transition-all flex justify-between items-center group/btn ${
+                                    answers[questions[step].id as keyof typeof answers] === option 
+                                      ? "border-imposing-gold bg-imposing-gold/10 text-white" 
+                                      : "border-white/5 hover:border-white/20 text-gray-400 hover:text-white"
+                                  }`}
+                                >
+                                  <span className="text-sm md:text-base font-light">{option}</span>
+                                  <div className={`w-2 h-2 rounded-full transition-all ${
+                                    answers[questions[step].id as keyof typeof answers] === option 
+                                      ? "bg-imposing-gold scale-125 shadow-[0_0_10px_rgba(212,175,55,1)]" 
+                                      : "bg-white/10 group-hover/btn:bg-imposing-gold/50"
+                                  }`} />
+                                </motion.button>
+                              ))}
+                              <div className="col-span-full mt-8 pt-8 border-t border-white/5">
+                                <button 
+                                  onClick={handleBack} 
+                                  className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-white transition-colors"
+                                >
+                                  <ChevronLeft className="w-3 h-3" /> Voltar
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="col-span-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                               <input 
+                                  type="text"
+                                  value={answers[questions[step].id as keyof typeof answers]}
+                                  onChange={(e) => setAnswers({ ...answers, [questions[step].id]: e.target.value })}
+                                  placeholder="Especifique o que mais te incomoda..."
+                                  className="w-full bg-transparent border-b-2 border-white/10 focus:border-imposing-gold py-4 text-xl md:text-2xl outline-none transition-all placeholder:text-white/10 text-white"
+                                  autoFocus
+                                  onKeyDown={(e) => e.key === 'Enter' && answers[questions[step].id as keyof typeof answers] && handleNext()}
+                               />
+                               <div className="flex justify-between items-center">
+                                  <button 
+                                    onClick={() => setShowOtherInput(false)} 
+                                    className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-gray-500 hover:text-white transition-colors"
+                                  >
+                                    <ChevronLeft className="w-4 h-4" /> Voltar
+                                  </button>
+                                  <motion.button 
+                                    disabled={!answers[questions[step].id as keyof typeof answers]}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleNext}
+                                    className={`px-10 py-4 bg-imposing-gold text-imposing-black font-black uppercase text-xs tracking-[0.2em] shadow-xl disabled:opacity-30 disabled:grayscale transition-all`}
+                                  >
+                                    Confirmar
+                                  </motion.button>
+                               </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
