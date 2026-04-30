@@ -2777,7 +2777,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 type="number"
                                 value={revenueFilterYear}
                                 onChange={(e) => setRevenueFilterYear(Number(e.target.value))}
-                                className="bg-transparent text-[10px] font-black text-white uppercase border-none outline-none w-14 text-center focus:text-imposing-gold transition-colors"
+                                className="bg-transparent text-[10px] font-black text-imposing-gold uppercase border-none outline-none w-14 text-center transition-colors"
                               />
                            </div>
                            <button 
@@ -2963,7 +2963,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             <h4 className="text-white text-xs uppercase font-black tracking-widest mb-1">Distribuição Mensal de Atendimentos</h4>
                             <p className="text-[10px] text-white/20 uppercase font-black tracking-widest">Visualização por dia</p>
                           </div>
-                          <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-2 rounded-2xl">
+                          <div className="flex items-center gap-4 bg-white/10 border border-white/20 p-2 rounded-2xl shadow-inner">
                             <select 
                               value={viewDate.getMonth()} 
                               onChange={(e) => {
@@ -2986,7 +2986,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 newDate.setFullYear(Number(e.target.value));
                                 setViewDate(newDate);
                               }}
-                              className="bg-transparent text-[10px] font-black text-white uppercase border-none outline-none p-2 w-16 text-center focus:text-imposing-gold transition-colors"
+                              className="bg-transparent text-[10px] font-black text-imposing-gold uppercase border-none outline-none p-2 w-16 text-center transition-colors"
                             />
                           </div>
                        </div>
@@ -3113,7 +3113,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                         <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Gestão de Prontuários e Histórico</p>
                       </div>
                       
-                      <div className="hidden lg:flex items-center gap-4 bg-white/5 border border-white/5 p-2 rounded-2xl">
+                      <div className="hidden lg:flex items-center gap-4 bg-white/10 border border-white/20 p-2 rounded-2xl shadow-inner">
                          <select 
                            value={filterMonth} 
                            onChange={(e) => {
@@ -3133,7 +3133,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                            type="number"
                            value={filterYear} 
                            onChange={(e) => setFilterYear(Number(e.target.value))}
-                           className="bg-transparent text-[10px] font-black text-white uppercase border-none outline-none p-2 w-16 text-center focus:text-imposing-gold transition-colors"
+                           className="bg-transparent text-[10px] font-black text-imposing-gold uppercase border-none outline-none p-2 w-16 text-center transition-colors"
                            placeholder="Ano"
                          />
                       </div>
