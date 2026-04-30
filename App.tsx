@@ -1475,7 +1475,7 @@ const TriagemDigital = () => {
             
             <h2 className="text-5xl md:text-[8rem] lg:text-[9rem] font-black text-imposing-black leading-[0.85] tracking-tighter uppercase mb-10">
               Triagem <br />
-              <span className="text-imposing-gold font-serif italic font-light lowercase">digital</span>
+              <span className="text-imposing-black font-serif italic font-light lowercase">digital</span>
             </h2>
           </Reveal>
 
@@ -1485,7 +1485,7 @@ const TriagemDigital = () => {
                 <Quote className="w-10 h-10 text-imposing-gold/20 mx-auto mb-4" />
                 <p className="text-imposing-black text-2xl md:text-3xl font-light leading-tight tracking-tight px-4">
                   Uma escuta técnica <br className="hidden md:block" />
-                  <span className="text-imposing-gold italic font-serif text-3xl md:text-4xl">silenciosa</span> para mapear as feridas que impedem seu progresso.
+                  <span className="text-imposing-black italic font-serif text-3xl md:text-4xl">silenciosa</span> para mapear as feridas que impedem seu progresso.
                 </p>
               </div>
             </Reveal>
