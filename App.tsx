@@ -2422,6 +2422,29 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     alert("Informações de todos os pacientes fixos copiadas para a área de transferência!");
   };
 
+  const copyIndividualFixedPatient = (p: any) => {
+    let diaTexto = "Desconhecido";
+    let horaTexto = "--:--";
+    if (p.dia_hora_fixo) {
+      try {
+        const parsed = JSON.parse(p.dia_hora_fixo);
+        const dias = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+        diaTexto = dias[parsed.dia] || "Desconhecido";
+        horaTexto = parsed.hora || "--:--";
+      } catch(e) {}
+    }
+    
+    let text = `📋 INFORMAÇÕES DO PACIENTE FIXO\n\n`;
+    text += `👤 Nome: ${p.nome.toUpperCase()}\n`;
+    text += `📅 Dia: ${diaTexto}\n`;
+    text += `⏰ Horário: ${horaTexto}\n`;
+    text += `💰 Valor: R$ ${p.valor_sessao}\n`;
+    text += `📱 Telefone: ${p.telefone}\n`;
+
+    navigator.clipboard.writeText(text);
+    alert(`Informações de ${p.nome} copiadas!`);
+  };
+
   const handleWhatsApp = (patient: any) => {
     const cleanedPhone = patient.telefone.replace(/\D/g, '');
     const msg = `Olá ${patient.nome.split(' ')[0]}, aqui é Gabriel. Confirmando nossa sessão de hoje às ${patient.horario}. Tudo certo por aí?`;
@@ -3510,9 +3533,10 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                             </td>
                             <td className="p-8 text-right">
                               <div className="flex justify-end items-center gap-3">
-                                <button onClick={() => handleWhatsApp(p)} className="p-4 bg-white/5 hover:bg-green-500/10 border border-white/5 hover:border-green-500/20 text-white/20 hover:text-green-500 rounded-2xl transition-all"><MessageCircle className="w-5 h-5" /></button>
-                                <button onClick={() => startEdit(p)} className="p-4 bg-white/5 hover:bg-blue-500/10 border border-white/5 hover:border-blue-500/20 text-white/20 hover:text-blue-500 rounded-2xl transition-all"><Edit className="w-5 h-5" /></button>
-                                <button onClick={() => deletePatient(p.id)} className="p-4 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-white/20 hover:text-red-500 rounded-2xl transition-all"><Trash2 className="w-5 h-5" /></button>
+                                 <button onClick={() => handleWhatsApp(p)} className="p-4 bg-white/5 hover:bg-green-500/10 border border-white/5 hover:border-green-500/20 text-white/20 hover:text-green-500 rounded-2xl transition-all"><MessageCircle className="w-5 h-5" /></button>
+                                 <button onClick={() => copyIndividualFixedPatient(p)} className="p-4 bg-white/5 hover:bg-imposing-gold/10 border border-white/5 hover:border-imposing-gold/20 text-white/20 hover:text-imposing-gold rounded-2xl transition-all"><Copy className="w-5 h-5" /></button>
+                                 <button onClick={() => startEdit(p)} className="p-4 bg-white/5 hover:bg-blue-500/10 border border-white/5 hover:border-blue-500/20 text-white/20 hover:text-blue-500 rounded-2xl transition-all"><Edit className="w-5 h-5" /></button>
+                                 <button onClick={() => deletePatient(p.id)} className="p-4 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-white/20 hover:text-red-500 rounded-2xl transition-all"><Trash2 className="w-5 h-5" /></button>
                               </div>
                             </td>
                           </motion.tr>
