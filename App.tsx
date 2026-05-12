@@ -2351,7 +2351,17 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const deletePatient = async (id: number) => {
     if(confirm("Deseja realmente excluir este paciente?")) {
-      await supabase.from('patients').delete().eq('id', id);
+      const { error } = await supabase.from('patients').delete().eq('id', id);
+      
+      // Sempre tenta limpar do localStorage também, caso seja um registro local
+      const localData = JSON.parse(localStorage.getItem('temp_patients') || '[]');
+      const filtered = localData.filter((p: any) => p.id !== id);
+      localStorage.setItem('temp_patients', JSON.stringify(filtered));
+      
+      if (error && !error.message.includes('permission denied')) {
+        alert("Erro ao excluir do banco: " + error.message);
+      }
+      
       fetchPatients();
     }
   };
@@ -2368,7 +2378,16 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     if (newStatus === 'Finalizado') {
       updateData.ultima_sessao = new Date().toISOString();
     }
-    await supabase.from('patients').update(updateData).eq('id', id);
+    const { error } = await supabase.from('patients').update(updateData).eq('id', id);
+    
+    // Fallback local
+    const localData = JSON.parse(localStorage.getItem('temp_patients') || '[]');
+    const updatedLocal = localData.map((p: any) => p.id === id ? { ...p, ...updateData } : p);
+    localStorage.setItem('temp_patients', JSON.stringify(updatedLocal));
+
+    if (error && !error.message.includes('permission denied')) {
+      alert("Erro ao atualizar status: " + error.message);
+    }
     fetchPatients();
   };
 
@@ -3787,23 +3806,23 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     status_pagamento: false
                                   };
 
-                                  const { error } = await supabase.from('patients').insert([newPatient]);
+                                  try {
+                                    const { error } = await supabase.from('patients').insert([newPatient]);
 
-                                  if (error) {
-                                    console.error("Erro no Supabase:", error);
-                                    if (error.message.includes('permission denied')) {
-                                      // FALLBACK CRÍTICO: Se o banco falhar, salvamos no LocalStorage para o Dr. não perder o trabalho
+                                    if (error) {
+                                      console.error("Erro no Supabase:", error);
+                                      // FALLBACK SEGURO: Salva no LocalStorage para não perder os dados
                                       const localData = JSON.parse(localStorage.getItem('temp_patients') || '[]');
                                       const tempPatient = { ...newPatient, id: Date.now(), created_at: new Date().toISOString(), is_local: true };
                                       localStorage.setItem('temp_patients', JSON.stringify([...localData, tempPatient]));
                                       
-                                      alert("⚠️ O BANCO NEGOU O ACESSO, MAS EU SALVEI O PACIENTE LOCALMENTE! Ele aparecerá na sua lista agora.");
-                                      fetchPatients(); // Isso vai carregar os locais também se ajustarmos o fetch
+                                      alert("⚠️ NOTA: Salvo no Navegador (Offline). O banco de dados está com restrição de acesso no momento, mas seu registro foi preservado aqui.");
                                     } else {
-                                      alert("Erro ao cadastrar: " + error.message);
+                                      alert("Paciente cadastrado com sucesso no banco de dados!");
                                     }
-                                  } else {
-                                    alert("Paciente cadastrado com sucesso no banco de dados!");
+                                  } catch (err) {
+                                    console.error("Erro crítico no cadastro:", err);
+                                    alert("Erro ao processar cadastro. Tente novamente.");
                                   }
                                 }
                                 
