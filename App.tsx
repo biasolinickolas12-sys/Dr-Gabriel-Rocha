@@ -3739,7 +3739,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                ))}
                             </div>
                          </div>
-                         <div className="pt-12">
+                              <div className="pt-12">
                             <button 
                               onClick={async () => {
                                 // Log de diagnóstico de sessão
@@ -3749,6 +3749,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 const horario = formData.dataSugerida || formData.horarioSugerido ? `${formData.dataSugerida} ${formData.horarioSugerido}` : "";
                                 const dia_hora_fixo = formData.periodicidade === 'Fixo' ? (formData.dia_hora_fixo || JSON.stringify({ dia: 1, hora: "08:00" })) : "";
                                 
+                                if (editingId) {
                                   const { error } = await supabase.from('patients').update({
                                     nome: formData.nome,
                                     idade: formData.idade,
