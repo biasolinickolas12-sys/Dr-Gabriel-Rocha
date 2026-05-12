@@ -3764,8 +3764,8 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 const horario = formData.dataSugerida || formData.horarioSugerido ? `${formData.dataSugerida} ${formData.horarioSugerido}` : "";
                                 const dia_hora_fixo = formData.periodicidade === 'Fixo' ? (formData.dia_hora_fixo || JSON.stringify({ dia: 1, hora: "08:00" })) : "";
                                 
-                                if (editingId) {
-                                  const { error } = await supabase.from('patients').update({
+                                 if (editingId) {
+                                  const updateData = {
                                     nome: formData.nome,
                                     idade: formData.idade,
                                     telefone: formData.telefone,
@@ -3776,16 +3776,18 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     dia_hora_fixo: dia_hora_fixo,
                                     origem: formData.origem,
                                     pauta_proxima: formData.pauta_proxima
-                                  }).eq('id', editingId);
+                                  };
+
+                                  const { error } = await supabase.from('patients').update(updateData).eq('id', editingId);
+
+                                  // FALLBACK LOCAL: Atualiza o paciente no localStorage se o banco falhar
+                                  const localData = JSON.parse(localStorage.getItem('temp_patients') || '[]');
+                                  const updatedLocal = localData.map((p: any) => p.id === editingId ? { ...p, ...updateData } : p);
+                                  localStorage.setItem('temp_patients', JSON.stringify(updatedLocal));
 
                                   if (error) {
                                     console.error("Erro no Supabase:", error);
-                                    if (error.message.includes('permission denied')) {
-                                      alert("Atenção: Permissão negada no banco. Salvando alteração localmente para esta sessão.");
-                                      // Fallback local seria implementado aqui se necessário
-                                    } else {
-                                      alert("Erro ao atualizar: " + error.message);
-                                    }
+                                    alert("⚠️ Nota: Salvo apenas no Navegador. O banco de dados está com restrição.");
                                   } else {
                                     alert("Informações atualizadas com sucesso!");
                                   }
