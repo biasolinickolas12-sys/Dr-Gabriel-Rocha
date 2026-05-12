@@ -2452,10 +2452,6 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   const savePaymentDates = async () => {
     if (!paymentDateModal) return;
     // Removendo atualização de colunas inexistentes para evitar erro de schema
-    // data_ultimo_pagamento e data_proximo_pagamento serão geridos via historico_pagamentos
-    await supabase.from('patients').update({
-       // Caso queira armazenar algo temporário ou em colunas existentes, faria aqui
-    }).eq('id', paymentDateModal.patientId);
     setPaymentDateModal(null);
     fetchPatients();
   };
