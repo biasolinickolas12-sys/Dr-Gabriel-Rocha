@@ -2221,7 +2221,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   const fetchPatients = async () => {
     setIsRefreshing(true);
     try {
-      const { data, error } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('pacientes').select('*').order('created_at', { ascending: false });
       if (error) {
         console.error("Erro ao carregar pacientes:", error);
       }
@@ -2326,7 +2326,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const deletePatient = async (id: number) => {
     if(confirm("Deseja realmente excluir este paciente?")) {
-      await supabase.from('patients').delete().eq('id', id);
+      await supabase.from('pacientes').delete().eq('id', id);
       fetchPatients();
     }
   };
@@ -2343,7 +2343,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     if (newStatus === 'Finalizado') {
       updateData.ultima_sessao = new Date().toISOString();
     }
-    await supabase.from('patients').update(updateData).eq('id', id);
+    await supabase.from('pacientes').update(updateData).eq('id', id);
     fetchPatients();
   };
 
@@ -2403,12 +2403,12 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
   });
 
   const togglePayment = async (id: number, currentStatus: boolean) => {
-    await supabase.from('patients').update({ status_pagamento: !currentStatus }).eq('id', id);
+    await supabase.from('pacientes').update({ status_pagamento: !currentStatus }).eq('id', id);
     fetchPatients();
   };
 
   const updatePauta = async (id: number, text: string) => {
-    await supabase.from('patients').update({ pauta_proxima: text }).eq('id', id);
+    await supabase.from('pacientes').update({ pauta_proxima: text }).eq('id', id);
     fetchPatients();
   };
 
@@ -2428,7 +2428,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     if (!paymentDateModal) return;
     // Removendo atualização de colunas inexistentes para evitar erro de schema
     // data_ultimo_pagamento e data_proximo_pagamento serão geridos via historico_pagamentos
-    await supabase.from('patients').update({
+    await supabase.from('pacientes').update({
        // Caso queira armazenar algo temporário ou em colunas existentes, faria aqui
     }).eq('id', paymentDateModal.patientId);
     setPaymentDateModal(null);
@@ -2480,7 +2480,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     
     try {
       // Tenta salvar na coluna correta
-      const { error } = await supabase.from('patients').update({
+      const { error } = await supabase.from('pacientes').update({
         historico_pagamentos: updatedHistory,
         status_pagamento: true
       }).eq('id', paymentManagerModal.patientId);
@@ -2491,7 +2491,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
         const cleanPauta = (patient?.pauta_proxima || "").split('[[[JSON_PAYMENTS]]]')[0].trim();
         const fallbackContent = `${cleanPauta}\n\n[[[JSON_PAYMENTS]]]${JSON.stringify(updatedHistory)}`;
         
-        const { error: fallbackError } = await supabase.from('patients').update({
+        const { error: fallbackError } = await supabase.from('pacientes').update({
           pauta_proxima: fallbackContent,
           status_pagamento: true
         }).eq('id', paymentManagerModal.patientId);
@@ -2516,7 +2516,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
       p.id === paymentId ? { ...p, valor } : p
     );
     
-    await supabase.from('patients').update({
+    await supabase.from('pacientes').update({
       historico_pagamentos: updatedHistory
     }).eq('id', paymentManagerModal.patientId);
     
@@ -2530,7 +2530,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
       p.id === paymentId ? { ...p, status } : p
     );
     
-    await supabase.from('patients').update({
+    await supabase.from('pacientes').update({
       historico_pagamentos: updatedHistory
     }).eq('id', paymentManagerModal.patientId);
     
@@ -2542,7 +2542,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     if (!paymentManagerModal) return;
     const updatedHistory = paymentManagerModal.history.filter(p => p.id !== paymentId);
     
-    await supabase.from('patients').update({
+    await supabase.from('pacientes').update({
       historico_pagamentos: updatedHistory
     }).eq('id', paymentManagerModal.patientId);
     
@@ -2552,7 +2552,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const setPaymentStatus = async (status: boolean) => {
     if (!paymentManagerModal) return;
-    await supabase.from('patients').update({
+    await supabase.from('pacientes').update({
       status_pagamento: status
     }).eq('id', paymentManagerModal.patientId);
     
@@ -2562,7 +2562,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
   const updateSessionValue = async (valor: number) => {
     if (!paymentManagerModal) return;
-    await supabase.from('patients').update({
+    await supabase.from('pacientes').update({
       valor_sessao: valor
     }).eq('id', paymentManagerModal.patientId);
     
@@ -2594,7 +2594,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     
     const updatedHistory = [...history, newPayment];
 
-    await supabase.from('patients').update({
+    await supabase.from('pacientes').update({
       status_pagamento: true,
       historico_pagamentos: updatedHistory
     }).eq('id', extraPaymentModal.patientId);
@@ -3721,7 +3721,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 const dia_hora_fixo = formData.periodicidade === 'Fixo' ? (formData.dia_hora_fixo || JSON.stringify({ dia: 1, hora: "08:00" })) : "";
                                 
                                 if (editingId) {
-                                  const { error } = await supabase.from('patients').update({
+                                  const { error } = await supabase.from('pacientes').update({
                                     nome: formData.nome,
                                     idade: formData.idade,
                                     telefone: formData.telefone,
@@ -3740,7 +3740,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     alert("Informações atualizadas com sucesso!");
                                   }
                                 } else {
-                                  const { error } = await supabase.from('patients').insert([{
+                                  const { error } = await supabase.from('pacientes').insert([{
                                     nome: formData.nome,
                                     idade: formData.idade,
                                     telefone: formData.telefone,
