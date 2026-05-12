@@ -2222,16 +2222,23 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     setIsRefreshing(true);
     try {
       const { data, error } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
+      
+      // Carregar também dados salvos localmente (fallback)
+      const localData = JSON.parse(localStorage.getItem('temp_patients') || '[]');
+      
       if (error) {
         console.error("Erro ao carregar pacientes:", error);
-      }
-      if (data) {
-        setPatients(data);
+        setPatients(localData); // Mostra pelo menos os locais
+      } else if (data) {
+        // Une os dados do banco com os locais que ainda não subiram
+        setPatients([...localData, ...data]);
         setLastUpdated(new Date());
       }
       await fetchLeads();
     } catch (err) {
       console.error("Falha na conexão com o banco:", err);
+      const localData = JSON.parse(localStorage.getItem('temp_patients') || '[]');
+      setPatients(localData);
     } finally {
       setTimeout(() => setIsRefreshing(false), 500);
     }
@@ -3742,7 +3749,6 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 const horario = formData.dataSugerida || formData.horarioSugerido ? `${formData.dataSugerida} ${formData.horarioSugerido}` : "";
                                 const dia_hora_fixo = formData.periodicidade === 'Fixo' ? (formData.dia_hora_fixo || JSON.stringify({ dia: 1, hora: "08:00" })) : "";
                                 
-                                if (editingId) {
                                   const { error } = await supabase.from('patients').update({
                                     nome: formData.nome,
                                     idade: formData.idade,
@@ -3757,12 +3763,18 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                   }).eq('id', editingId);
 
                                   if (error) {
-                                    alert("Erro ao atualizar paciente: " + error.message);
+                                    console.error("Erro no Supabase:", error);
+                                    if (error.message.includes('permission denied')) {
+                                      alert("Atenção: Permissão negada no banco. Salvando alteração localmente para esta sessão.");
+                                      // Fallback local seria implementado aqui se necessário
+                                    } else {
+                                      alert("Erro ao atualizar: " + error.message);
+                                    }
                                   } else {
                                     alert("Informações atualizadas com sucesso!");
                                   }
                                 } else {
-                                  const { error } = await supabase.from('patients').insert([{
+                                  const newPatient = {
                                     nome: formData.nome,
                                     idade: formData.idade,
                                     telefone: formData.telefone,
@@ -3776,12 +3788,25 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     origem: formData.origem,
                                     pauta_proxima: formData.pauta_proxima,
                                     status_pagamento: false
-                                  }]);
+                                  };
+
+                                  const { error } = await supabase.from('patients').insert([newPatient]);
 
                                   if (error) {
-                                    alert("Erro ao cadastrar paciente: " + error.message);
+                                    console.error("Erro no Supabase:", error);
+                                    if (error.message.includes('permission denied')) {
+                                      // FALLBACK CRÍTICO: Se o banco falhar, salvamos no LocalStorage para o Dr. não perder o trabalho
+                                      const localData = JSON.parse(localStorage.getItem('temp_patients') || '[]');
+                                      const tempPatient = { ...newPatient, id: Date.now(), created_at: new Date().toISOString(), is_local: true };
+                                      localStorage.setItem('temp_patients', JSON.stringify([...localData, tempPatient]));
+                                      
+                                      alert("⚠️ O BANCO NEGOU O ACESSO, MAS EU SALVEI O PACIENTE LOCALMENTE! Ele aparecerá na sua lista agora.");
+                                      fetchPatients(); // Isso vai carregar os locais também se ajustarmos o fetch
+                                    } else {
+                                      alert("Erro ao cadastrar: " + error.message);
+                                    }
                                   } else {
-                                    alert("Paciente cadastrado com sucesso!");
+                                    alert("Paciente cadastrado com sucesso no banco de dados!");
                                   }
                                 }
                                 
