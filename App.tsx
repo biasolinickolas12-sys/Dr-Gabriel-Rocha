@@ -2391,6 +2391,37 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     fetchPatients();
   };
 
+  const copyAllFixedPatients = () => {
+    const fixed = patients.filter(p => p.periodicidade === 'Fixo');
+    if (fixed.length === 0) {
+      alert("Nenhum paciente fixo cadastrado.");
+      return;
+    }
+
+    let text = "📋 RELATÓRIO DE PACIENTES FIXOS\n\n";
+    fixed.forEach((p, i) => {
+      let diaTexto = "Desconhecido";
+      let horaTexto = "--:--";
+      if (p.dia_hora_fixo) {
+        try {
+          const parsed = JSON.parse(p.dia_hora_fixo);
+          const dias = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+          diaTexto = dias[parsed.dia] || "Desconhecido";
+          horaTexto = parsed.hora || "--:--";
+        } catch(e) {}
+      }
+      
+      text += `${i + 1}. ${p.nome.toUpperCase()}\n`;
+      text += `   📅 Dia: ${diaTexto} às ${horaTexto}\n`;
+      text += `   💰 Valor: R$ ${p.valor_sessao}\n`;
+      text += `   📱 Telefone: ${p.telefone}\n`;
+      text += `   ----------------------------\n`;
+    });
+
+    navigator.clipboard.writeText(text);
+    alert("Informações de todos os pacientes fixos copiadas para a área de transferência!");
+  };
+
   const handleWhatsApp = (patient: any) => {
     const cleanedPhone = patient.telefone.replace(/\D/g, '');
     const msg = `Olá ${patient.nome.split(' ')[0]}, aqui é Gabriel. Confirmando nossa sessão de hoje às ${patient.horario}. Tudo certo por aí?`;
@@ -3380,6 +3411,12 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                         <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.4em]">Gestão de Agendamentos Recorrentes</p>
                       </div>
                     </div>
+                    <button 
+                      onClick={copyAllFixedPatients} 
+                      className="bg-white/5 hover:bg-imposing-gold/10 border border-white/10 hover:border-imposing-gold/30 text-white/40 hover:text-imposing-gold px-8 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-2xl"
+                    >
+                      <Copy className="w-5 h-5" /> Copiar Informações de Todos
+                    </button>
                   </div>
 
                   <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl overflow-x-auto">
