@@ -2283,7 +2283,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     const cleanPassword = password.trim();
 
     // Bypass administrativo para as credenciais fornecidas
-    if (cleanEmail === "gabrielrocha.psicologia@gmail.com" && cleanPassword === "iniciaragendamento123") {
+    if (cleanEmail === "gabrielrocha.psicologia@gmail.com" && cleanPassword === "#Rocha200996") {
       setIsAuthenticated(true);
       localStorage.setItem('admin_authenticated', 'true');
       setIsLoggingIn(false);
