@@ -2222,13 +2222,17 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     setIsRefreshing(true);
     try {
       const { data, error } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
+      if (error) {
+        console.error("Erro ao carregar pacientes:", error);
+      }
       if (data) {
         setPatients(data);
         setLastUpdated(new Date());
       }
       await fetchLeads();
+    } catch (err) {
+      console.error("Falha na conexão com o banco:", err);
     } finally {
-      // Pequeno delay para feedback visual do botão girando
       setTimeout(() => setIsRefreshing(false), 500);
     }
   };
@@ -2273,7 +2277,6 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     });
     setActiveTab('agendamento');
   };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -2282,22 +2285,29 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     const cleanEmail = email.trim().toLowerCase();
     const cleanPassword = password.trim();
 
-    // Bypass administrativo para as credenciais fornecidas
-    if (cleanEmail === "gabrielrocha.psicologia@gmail.com" && cleanPassword === "#Rocha200996") {
-      setIsAuthenticated(true);
-      localStorage.setItem('admin_authenticated', 'true');
-      setIsLoggingIn(false);
-      return;
-    }
-
     try {
+      // Tenta autenticação real no Supabase primeiro para garantir contexto de segurança
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: cleanPassword
       });
-      if (authError) {
-        setError("Acesso negado. Credenciais administrativas inválidas.");
+
+      if (!authError) {
+        setIsAuthenticated(true);
+        localStorage.setItem('admin_authenticated', 'true');
+        setIsLoggingIn(false);
+        return;
       }
+
+      // Fallback para bypass administrativo se o Supabase falhar mas as credenciais locais estiverem corretas
+      if (cleanEmail === "gabrielrocha.psicologia@gmail.com" && cleanPassword === "#Rocha200996") {
+        setIsAuthenticated(true);
+        localStorage.setItem('admin_authenticated', 'true');
+        setIsLoggingIn(false);
+        return;
+      }
+
+      setError("Acesso negado. Credenciais administrativas inválidas.");
     } catch (err) {
       setError("Erro de conexão. Tente novamente.");
     } finally {
@@ -2481,10 +2491,12 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
         const cleanPauta = (patient?.pauta_proxima || "").split('[[[JSON_PAYMENTS]]]')[0].trim();
         const fallbackContent = `${cleanPauta}\n\n[[[JSON_PAYMENTS]]]${JSON.stringify(updatedHistory)}`;
         
-        await supabase.from('patients').update({
+        const { error: fallbackError } = await supabase.from('patients').update({
           pauta_proxima: fallbackContent,
           status_pagamento: true
         }).eq('id', paymentManagerModal.patientId);
+        
+        if (fallbackError) throw fallbackError;
       } else if (error) {
         throw error;
       }
@@ -3709,7 +3721,7 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                 const dia_hora_fixo = formData.periodicidade === 'Fixo' ? (formData.dia_hora_fixo || JSON.stringify({ dia: 1, hora: "08:00" })) : "";
                                 
                                 if (editingId) {
-                                  await supabase.from('patients').update({
+                                  const { error } = await supabase.from('patients').update({
                                     nome: formData.nome,
                                     idade: formData.idade,
                                     telefone: formData.telefone,
@@ -3721,9 +3733,14 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     origem: formData.origem,
                                     pauta_proxima: formData.pauta_proxima
                                   }).eq('id', editingId);
-                                  alert("Informações atualizadas com sucesso!");
+
+                                  if (error) {
+                                    alert("Erro ao atualizar paciente: " + error.message);
+                                  } else {
+                                    alert("Informações atualizadas com sucesso!");
+                                  }
                                 } else {
-                                  await supabase.from('patients').insert([{
+                                  const { error } = await supabase.from('patients').insert([{
                                     nome: formData.nome,
                                     idade: formData.idade,
                                     telefone: formData.telefone,
@@ -3738,7 +3755,12 @@ const AdminPortal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                                     pauta_proxima: formData.pauta_proxima,
                                     status_pagamento: false
                                   }]);
-                                  alert("Paciente cadastrado com sucesso!");
+
+                                  if (error) {
+                                    alert("Erro ao cadastrar paciente: " + error.message);
+                                  } else {
+                                    alert("Paciente cadastrado com sucesso!");
+                                  }
                                 }
                                 
                                 fetchPatients();
