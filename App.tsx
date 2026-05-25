@@ -1290,14 +1290,14 @@ const Approach = () => {
            <Reveal y={40} duration={0.8} delay={0.2}>
              <div className="relative z-10 ml-10 md:ml-[15%] lg:ml-[20%] xl:ml-[25%] border-l md:border-l-[3px] border-imposing-gold pl-6 md:pl-12">
                <p className="text-2xl md:text-4xl lg:text-[2.5rem] text-gray-300 leading-[1.6] md:leading-[1.5] font-light max-w-4xl tracking-tight">
-                 <strong className="text-white font-medium">Minha prática clínica</strong> integra a sensibilidade da <span className="text-imposing-gold/90 font-medium md:whitespace-nowrap">Abordagem Centrada na Pessoa (ACP)</span> ao rigor estratégico da <span className="text-imposing-gold/90 font-medium">Terapia Cognitivo-Comportamental (TCC)</span>.
+                 Na <strong className="text-white font-medium">minha prática clínica</strong>, associo o acolhimento da <span className="text-imposing-gold/90 font-medium md:whitespace-nowrap">Abordagem Centrada na Pessoa (ACP)</span> à estrutura da <span className="text-imposing-gold/90 font-medium">Terapia Cognitivo-Comportamental (TCC)</span> e à eficácia do <span className="text-imposing-gold/90 font-medium">EMDR</span>.
                  <br/><br/>
-                 Acredito que o {` `}
+                 Entendo que a {` `}
                  <span className="relative inline-block group">
-                   <strong className="text-white font-medium">vínculo de confiança</strong>
+                   <strong className="text-white font-medium">relação terapêutica</strong>
                    <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-imposing-gold scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
                  </span> 
-                 {` `}é o solo necessário para a mudança, mas que a superação real exige ferramentas técnicas para reestruturar os padrões que nos mantêm estagnados em ciclos de perda.
+                 {` `}é a base de tudo, mas a transformação prática exige ferramentas precisas: a <strong className="text-white font-medium">TCC</strong> atua na reestruturação dos pensamentos que alimentam ciclos de perda, enquanto o <strong className="text-white font-medium">EMDR</strong> trabalha diretamente no reprocessamento de memórias dolorosas e traumas, destravando o que nos mantém estagnados.
                </p>
              </div>
            </Reveal>
